@@ -211,26 +211,27 @@ The red wire is the transceiver's antenna.
 
 <h2>Install the sketch software</h2>
 Use the Arduino IDE to install mfj998sketch. The daughterboard must not be 
-plugged into the motherboard to program it through its 6-pin header. (Note: the Arduino serial port
+plugged into the motherboard to program it through its 6-pin header. 
+
+Note: the Arduino serial port
 is routed through the daughterboard to the MFJ998's back panel serial connector, but without the DTR pin
 that the Arduino IDE uses to reset the device at programming time. The
 Arduino can be programmed as installed in the motherboard using a serial cable
 to the MFJ998's back panel using careful timing of the power switch and 
-the Arduino "upload" button. See the Arduino documentation.)
+the Arduino "upload" button. See the Arduino documentation.
  
-
-<h2>CAD</h2>
+<h3>CAD</h3>
 The CAD and STL directories contain the 3D designs of a couple
 of plastic parts that might be useful.
 
-Mfj998rtTerminalCover.STL
+<p>Mfj998rtTerminalCover.STL</p>
 In my installation, the antenna is a wire connected to the tuner's
 wire terminal input, and the tuner is mounted with that hole facing
 up, and therefore with rainfall exposure. When not in use, I move
 the antenna wire to the adjacent grounded wingnut and pop this
 plastic part to offer better weather protection to the wire terminal.
 
-Mfj998LcdSpacer2.STL
+<p>Mfj998LcdSpacer2.STL</p>
 Lightning destroyed the LCD in my MFJ998RT. I found the manufacturer's
 soldered-in header extremely difficult to remove with the dead part.
 To install the new device, I did not use a header but instead soldered
@@ -238,9 +239,9 @@ To install the new device, I did not use a header but instead soldered
 and 11-16. Pins 7-10 are not used in the original. That resulted in an LCD
 that can be uninstalled relatively easily, but is not held in place
 securely. Print the part above and it properly frames the LCD in the 
-window in the aluminum chassis.
+window in the aluminum shield.
 
-<p>MFJ998RT versus the MFJ998 indoor version.</p>
+<h3>MFJ998RT versus the MFJ998 indoor version.</h3>
 
 While the main PCB on the MFJ998RT is identical to the indoor version
 of the tuner, the MFJ998, and the daughterboard could obviously be
@@ -250,8 +251,8 @@ hardware connects all the same signals to the Arduino that were
 available to the original PIC processor, so maybe you can modify
 this code to be useful on the indoor model.
 
-MFWD and MREF are connected, but are not supported by this sketch.
-The START line is connected (it comes from the PIC band selector uProc
+MFWD and MREF are routed to the Arduino, but are not supported by this sketch.
+The START line is also routed (it comes from the PIC band selector uProc
 on the motherboard) but 
 is not supported in the sketch published here. The communication protocol for that PIC uProc is
 not, as far as I know, published by MFJ.
