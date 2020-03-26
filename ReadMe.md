@@ -28,13 +28,15 @@ of working on it part time, I replaced one more IC (the main PIC18 uProc was the
 it came up! Its as good as new. Here is the pile of dead semiconductors that
 came off the lightning-struck board.
 <p align='center'><img width='50%' src='deadparts.jpg' alt='deadparts.jpg'/></p>
+Now that I know something about how the tuner works, maybe I can improve it for my own
+use?
 
 <p>Why replace the as-designed PIC microprocessor?</p>
 
 In contesting scenarios, I found I could not always get the MFJ998RT
 to quickly tune to match at the frequency I wanted, and having to
 put a low power signal to it to force the tune causes QRM
-and takes time. This project adds a RFM69HCW 915MHz Wireless Transceiver  
+and takes time. This project adds a RFM69HCW 915MHz Wireless Transceiver 
 with a maximum range of 500m. It allows direct telemetry of the
 tuner's state in both directions from the main operating shack. The
 tuner, for example, can be commanded to set itself to an operating
@@ -83,7 +85,7 @@ wrong orientation. The header pins go into the board from the
 same side the SMDs are mounted, and the <i>short</i> header pins 
 solder into the board. The bottom side of the board, then,
 has nothing on it, and the short pints of the headers protruding.
-<p> Here are step by step pictures. Use a jig of some sort to keep the headers at right angles to the PCB. I started with the ones for the PIC position.</p>
+ Here are step by step pictures. Use a jig of some sort to keep the headers at right angles to the PCB. I started with the ones for the PIC position.
 <p align='center'><img width='50%' src='construction-02.jpg' alt='construction-02.jpg'/></p>
 Check the PCB and header pin orientation. This is your last chance. Solder the PIC headers. 
 <p align='center'><img width='50%' src='construction-03.jpg' alt='construction-03.jpg'/></p>
@@ -100,6 +102,7 @@ The Arduino drops down to the work surface, but the soldering happens on what is
 <p align='center'><img width='50%' src='construction-08.jpg' alt='construction-08.jpg'/></p>
 I only soldered one or two pins on each of the three headers so I could take a peek at the other side before committing all the pins. Then finish soldering all the Aruduino headers, but do NOT solder in the Arduino yet!
 <p align='center'><img width='50%' src='construction-09.jpg' alt='construction-09.jpg'/></p>
+<h3>Test now. Do not finish assembly</h3>
 Its time to try TestHarnessSketch running on my Mega. There are a lot of jumpers required.
 See the details in <a href='TestHarnessSketch/TestHarnessSketch.ino'>TestHarnessSketch.ino</a>.
 <p align='center'><img width='50%' src='construction-11.jpg' alt='construction-11.jpg'/></p>
@@ -153,7 +156,8 @@ WAKEUP_PIN is in interrupt mask. OK
 extender removed iSPI on WAKEUP high, OK
 extender PD_PIN HIGH OK
 Extender interrupt on PD high, OK
-RFM69 TEST FAILED***********************
+RFM69 TEST FAILED***********************
+
 
 </pre></code></blockquote>
 
@@ -201,7 +205,7 @@ RFM69 test passed
 All tests passed
 
 </pre></code></blockquote>
-
+<h3>Finish assembling</h3>
 Now its OK to solder in the Arduino. Install a right angle header on the 6 pin side of the Arduio Pro Mini. See the photo for the required orientation. This head is used
 to program the device.
 <p align='center'><img width='50%' src='arduino-installed.jpg' alt='arduino-installed.jpg'/></p>
