@@ -100,7 +100,7 @@ No soldering is done at this step! Now flip the PCB over without losing the (los
 <p align='center'><img width='50%' src='construction-07.jpg' alt='construction-07.jpg'/></p>
 The Arduino drops down to the work surface, but the soldering happens on what is now the top of the PCB.
 <p align='center'><img width='50%' src='construction-08.jpg' alt='construction-08.jpg'/></p>
-I only soldered one or two pins on each of the three headers so I could take a peek at the other side before committing all the pins. Then finish soldering all the Aruduino headers, but do NOT solder in the Arduino yet!
+I only soldered one or two pins on each of the three headers so I could take a peek at the other side before committing all the pins. Then finish soldering all the Aruduino headers to the PCB (the ones you can see in the photo below), but do NOT solder in the Arduino yet!
 <p align='center'><img width='50%' src='construction-09.jpg' alt='construction-09.jpg'/></p>
 <h3>Test now. Do not finish assembly</h3>
 Its time to try TestHarnessSketch running on my Mega. There are a lot of jumpers required.
@@ -157,8 +157,6 @@ extender removed iSPI on WAKEUP high, OK
 extender PD_PIN HIGH OK
 Extender interrupt on PD high, OK
 RFM69 TEST FAILED***********************
-
-
 </pre></code></blockquote>
 
 Solder the RFM69 transceiver into place. Note that the TestHarnessSketch
@@ -203,7 +201,6 @@ extender PD_PIN HIGH OK
 Extender interrupt on PD high, OK
 RFM69 test passed
 All tests passed
-
 </pre></code></blockquote>
 <h3>Finish assembling</h3>
 Now its OK to solder in the Arduino. Install a right angle header on the 6 pin side of the Arduio Pro Mini. See the photo for the required orientation. This head is used
