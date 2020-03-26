@@ -36,7 +36,7 @@ use?
 In contesting scenarios, I found I could not always get the MFJ998RT
 to quickly tune to match at the frequency I wanted, and having to
 put a low power signal to it to force the tune causes QRM
-and takes time. This project adds a RFM69HCW 915MHz Wireless Transceiver 
+and takes time. This project adds a <a href='https://learn.sparkfun.com/tutorials/rfm69hcw-hookup-guide'>RFM69HCW 915MHz Wireless Transceiver</a> 
 with a maximum range of 500m. It allows direct telemetry of the
 tuner's state in both directions from the main operating shack. The
 tuner, for example, can be commanded to set itself to an operating
@@ -159,7 +159,8 @@ Extender interrupt on PD high, OK
 RFM69 TEST FAILED***********************
 </pre></code></blockquote>
 
-Solder the RFM69 transceiver into place. Note that the TestHarnessSketch
+Solder the RFM69 transceiver into place. Add its antenna per the
+the notest <a href='https://learn.sparkfun.com/tutorials/rfm69hcw-hookup-guide'>here</a>. Note that the TestHarnessSketch
 likely will no longer run without external power applied to your
 Test Machine (a Uno or Mega is recommended). USB-supplied power is
 insufficient to power the daughterboard once the RFM69 is in place!
