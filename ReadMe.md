@@ -70,7 +70,8 @@ PCB traces from the shield.
 </ol>
 
 <h2>Operation</h2>
-TBD
+The daughterboard sketch has some primitive functions available on the push button panel and LCD display,
+but its primary purpose is to be controlled from the shack PC. <a href='Mfj998Desktop/Mfj998Desktop'>Here</a> is the source code to a Windows application.
 
 <h2>Construction</h2>
 The surface mount components, minus the RFM69 transceiver, are
@@ -100,7 +101,7 @@ No soldering is done at this step! Now flip the PCB over without losing the loos
 <p align='center'><img width='50%' src='construction-07.jpg' alt='construction-07.jpg'/></p>
 The Arduino drops down to the work surface, but the soldering happens on what is now the top of the PCB.
 <p align='center'><img width='50%' src='construction-08.jpg' alt='construction-08.jpg'/></p>
-I only soldered one or two pins on each of the three headers so I could take a peek at the other side before committing all the pins. Then finish soldering all the Aruduino headers to the PCB (the ones you can see in the photo below), but do NOT solder in the Arduino yet!
+I only soldered one or two pins on each of the three headers so I could take a peek at the other side before committing all the pins. Then finish soldering all the Aruduino headers to the PCB (the ones you can see in the photo below), but do not solder in the Arduino yet!
 <p align='center'><img width='50%' src='construction-09.jpg' alt='construction-09.jpg'/></p>
 <h3>Test now. Do not finish assembly</h3>
 Its time to try TestHarnessSketch running on my Mega. There are a lot of jumpers required.
@@ -115,7 +116,7 @@ Finally, all the jumpers for both sets of headers.
 <p align='center'><img width='50%' src='construction-14.jpg' alt='construction-14.jpg'/></p>
 
 With only the SMD components installed (minus the RFM69, which
-cannot be reflow soldered) use jumper wires between the
+cannot go in the reflow oven) use jumper wires between the
 partially assembled daughterboard with no arduino, and not
 plugged into the MFJ998 motherboard. See the TestHarnessSketch
 for detailed instructions for the jumpers. Only the RFM69 test
@@ -163,7 +164,7 @@ Solder the RFM69 transceiver into place. Add its antenna per the
 the notest <a href='https://learn.sparkfun.com/tutorials/rfm69hcw-hookup-guide'>here</a>. Note that the TestHarnessSketch
 likely will no longer run without external power applied to your
 Test Machine (a Uno or Mega is recommended). USB-supplied power is
-insufficient to power the daughterboard once the RFM69 is in place!
+insufficient to power the daughterboard once the RFM69 is in place.
 
 <blockquote><code><pre>
 MFJ998 daughter test harness (rev02)
@@ -224,12 +225,14 @@ the Arduino "upload" button. See the Arduino documentation.
 The CAD and STL directories contain the 3D designs of a couple
 of plastic parts that might be useful.
 
+
 <p>Mfj998rtTerminalCover.STL</p>
 In my installation, the antenna is a wire connected to the tuner's
 wire terminal input, and the tuner is mounted with that hole facing
 up, and therefore with rainfall exposure. When not in use, I move
 the antenna wire to the adjacent grounded wingnut and pop this
 plastic part to offer better weather protection to the wire terminal.
+
 
 <p>Mfj998LcdSpacer2.STL</p>
 Lightning destroyed the LCD in my MFJ998RT. I found the manufacturer's
@@ -243,7 +246,7 @@ window in the aluminum shield.
 
 <h3>MFJ998RT versus the MFJ998 indoor version.</h3>
 
-While the main PCB on the MFJ998RT is identical to the indoor version
+While the main PCB on the MFJ998RT is nearly identical to the indoor version
 of the tuner, the MFJ998, and the daughterboard could obviously be
 plugged into that indoor version, this sketch does not support 
 everything needed for the indoor version's operation. The PCB
