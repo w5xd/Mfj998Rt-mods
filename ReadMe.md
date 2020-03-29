@@ -84,7 +84,7 @@ possible! It is impossible to fix a soldered-in header in the
 wrong orientation. The header pins go into the board from the 
 same side the SMDs are mounted, and the <i>short</i> header pins 
 solder into the board. The bottom side of the board, then,
-has nothing on it, and the short pints of the headers protruding.
+has nothing on it, and the short pins of the headers protruding.
  Here are step by step pictures. Use a jig of some sort to keep the headers at right angles to the PCB. I started with the ones for the PIC position.
 <p align='center'><img width='50%' src='construction-02.jpg' alt='construction-02.jpg'/></p>
 Check the PCB and header pin orientation. This is your last chance. Solder the PIC headers. 
@@ -96,7 +96,7 @@ The first Ardunio header is soldered in while maintaining a right angle.
 <p align='center'><img width='50%' src='construction-05.jpg' alt='construction-05.jpg'/></p>
 I used the Arduino as a jig to hold the headers for soldering its remaining headers.
 <p align='center'><img width='50%' src='construction-06.jpg' alt='construction-06.jpg'/></p>
-No soldering is done at this step! Now flip the PCB over without losing the (lose) Arduino nor its headers.
+No soldering is done at this step! Now flip the PCB over without losing the loose Arduino nor its headers.
 <p align='center'><img width='50%' src='construction-07.jpg' alt='construction-07.jpg'/></p>
 The Arduino drops down to the work surface, but the soldering happens on what is now the top of the PCB.
 <p align='center'><img width='50%' src='construction-08.jpg' alt='construction-08.jpg'/></p>
