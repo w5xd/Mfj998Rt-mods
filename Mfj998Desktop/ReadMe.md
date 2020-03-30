@@ -66,7 +66,23 @@ Repeat the process of loading analyzer data, setting the number of segments and 
 that you will want to support.
 
 Disconnect the serial cable. Relocate the tuner to the antenna feedpoint and connect a coax with 12VDC on its center 
-conductor using MFJ's instructions for how to feed power to the tuner.
+conductor using MFJ's instructions for how to feed power to the tuner. Use the "Gateway port" selector and choose
+the COM port corresponding to the Arduino running the <a href='https://github.com/w5xd/Mfj998Rt-mods/GatewaySketch'>GatewaySketch</a>. This desktop application (currently) can only talk to one modified MFJ998RT at 
+a time, and that tuner's daughterboard must have been setup for the same frequency and at the Node ID you select here.
+Once those two are set correctly in this application and while the tuner has 12VDC applied, the application will show
+the text of the messages the two are exchanging.
+
+The Trigger and Stop settings initially show how the tuner's daughterboard's EEPROM is set. Click Restart to refresh
+this display. Trigger is the SWR value that causes the tuner firmware to start a search, starting with its programmed L/C
+settings for the frequency it sees from your transmitter. Stop is the value that, if it finds an L/C with an SWR
+of this or better, it stops searching.
+
+The desktop's C, L and P selectors use the UHF link to override the values the tuner daughterboard has chosen.
+The "P" value is zero or one, which correspond, respectively, to the capacitance on the load (antenna) side, or the generator
+(transmitter) side.
+
+The Set EEPROM button commands the tuner, over its UHF link, to overwrite its EEPROM setting just for the segment corresponding
+to the current frequency it has acquired (as displayed here) and with the L, C and P values displayed.
 
 
 
