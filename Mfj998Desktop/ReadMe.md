@@ -67,7 +67,7 @@ that you will want to support.
 
 Disconnect the serial cable. Relocate the tuner to the antenna feedpoint and connect a coax with 12VDC on its center 
 conductor using MFJ's instructions for how to feed power to the tuner. Use the "Gateway port" selector and choose
-the COM port corresponding to the Arduino running the <a href='https://github.com/w5xd/Mfj998Rt-mods/GatewaySketch'>GatewaySketch</a>. This desktop application (currently) can only talk to one modified MFJ998RT at 
+the COM port corresponding to the Arduino running the <a href='../GatewaySketch'>GatewaySketch</a>. This desktop application (currently) can only talk to one modified MFJ998RT at 
 a time, and that tuner's daughterboard must have been setup for the same frequency and at the Node ID you select here.
 Once those two are set correctly in this application and while the tuner has 12VDC applied, the application will show
 the text of the messages the two are exchanging.
