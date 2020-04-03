@@ -161,7 +161,7 @@ RFM69 TEST FAILED***********************
 </pre></code></blockquote>
 
 Solder the RFM69 transceiver into place. Add its antenna per the
-the notest <a href='https://learn.sparkfun.com/tutorials/rfm69hcw-hookup-guide'>here</a>. Note that the TestHarnessSketch
+the notes <a href='https://learn.sparkfun.com/tutorials/rfm69hcw-hookup-guide'>here</a>. Note that the TestHarnessSketch
 likely will no longer run without external power applied to your
 Test Machine (a Uno or Mega is recommended). USB-supplied power is
 insufficient to power the daughterboard once the RFM69 is in place.
