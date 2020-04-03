@@ -205,7 +205,7 @@ RFM69 test passed
 All tests passed
 </pre></code></blockquote>
 <h3>Finish assembling</h3>
-Now its OK to solder in the Arduino. Install a right angle header on the 6 pin side of the Arduio Pro Mini. See the photo for the required orientation. This head is used
+Now its OK to solder in the Arduino. Install a right angle header on the 6 pin side of the Arduio Pro Mini. See the photo for the required orientation. This header is used
 to program the device.
 <p align='center'><img width='50%' src='arduino-installed.jpg' alt='arduino-installed.jpg'/></p>
 The red wire is the transceiver's antenna.
