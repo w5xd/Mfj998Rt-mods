@@ -164,7 +164,7 @@ namespace Mfj998Desktop
             }
         }
 
-        private const double Z0 = 50;
+        private double Z0 = 50;
         private double TWO_PI = 8 * Math.Atan(1);
 
         private networkValue fromRXf(double r, double x, double fMhz)
@@ -172,35 +172,47 @@ namespace Mfj998Desktop
             double R = r / Z0; double X = x / Z0; // normalize to 50 ohms
             double f = fMhz;
             double w = f * TWO_PI; // radians
+            double denom = R * R + X * X;
+            double G = R / denom;
+            double B = -X / denom;
+            double Xl = 0;
             var ret = new networkValue();
             // Y defined to be G + jB
             // Z defined to be R + jX
             // Bc is capacitor susceptance in normalized mhos
             // Xl is inductor reactance in normalized ohms
-            if (R >= 1) // C on load
+            double beta = Math.Sqrt(R - R * R); // can be NaN
+            if (beta >= 0)
             {
-                double denom = R * R + X * X;
-                double G = R / denom;
-                double B = -X / denom;
-                double alpha = Math.Sqrt(G - G * G);
+                Xl = beta - X;
+                if (Xl >= 0)
+                {    // C on generator side
+                    double Bc = beta / (beta * beta + R * R);
+                    double C = Bc / (w * Z0); // uF
+                    C *= 1000000; // pF
+                    double L = Xl * Z0 / w; // uH
+                    ret.cPf = C; ret.luH = L; ret.load = false;
+                    return ret;
+                }
+            }
+            double alpha = Math.Sqrt(G - G * G); // can be NaN
+            if (alpha >= 0)
+            {   
                 double Bc = alpha - B;
-                double Xl = alpha / (G * G + alpha * alpha);
-                double C = Bc / (w * Z0); // uF
-                C *= 1000000; // pF
-                double L = Xl * Z0 / w; // uH
-                ret.cPf = C; ret.luH = L; ret.load = true;
+                if (Bc >= 0)
+                {   // C on load
+                    Xl = alpha / (G * G + alpha * alpha);
+                    if (Xl >= 0)
+                    {
+                        double C = Bc / (w * Z0); // uF
+                        C *= 1000000; // pF
+                        double L = Xl * Z0 / w; // uH
+                        ret.cPf = C; ret.luH = L; ret.load = true;
+                        return ret;
+                    }
+                }
             }
-            else
-            {
-                double beta = Math.Sqrt(R - R * R);
-                double Xl = beta - X;
-                double Bc = beta / (beta * beta + R * R);
-                double C = Bc / (w * Z0); // uF
-                C *= 1000000; // pF
-                double L = Xl * Z0 / w; // uH
-                ret.cPf = C; ret.luH = L; ret.load = false;
-            }
-            return ret;
+            return ret; // no solution
         }
 
         private void recalculate()
@@ -334,6 +346,7 @@ namespace Mfj998Desktop
             labelRef.Text = "";
             labelSwr.Text = "";
             labelFreq.Text = "";
+            comboBoxZ0.SelectedIndex = 0;
         }
         private System.IO.Ports.SerialPort m_mfj998Port;
         private void comboBoxTunerPorts_SelectedIndexChanged(object sender, EventArgs e)
@@ -693,6 +706,15 @@ namespace Mfj998Desktop
         private void buttonRestart_Click(object sender, EventArgs e)
         {
             restartTelemetry();
+        }
+
+        private void comboBoxZ0_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (comboBoxZ0.SelectedIndex == 0)
+                Z0 = 50;
+            else if (comboBoxZ0.SelectedIndex == 1)
+                Z0 = 70;
+            recalculate();
         }
     }
 }

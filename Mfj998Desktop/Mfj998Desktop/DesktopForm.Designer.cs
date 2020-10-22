@@ -43,6 +43,7 @@
             this.numericUpDownSmoother = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.comboBoxZ0 = new System.Windows.Forms.ComboBox();
             this.label15 = new System.Windows.Forms.Label();
             this.label14 = new System.Windows.Forms.Label();
             this.numericUpDownFmax = new System.Windows.Forms.NumericUpDown();
@@ -157,10 +158,10 @@
             // 
             // buttonSelectData
             // 
-            this.buttonSelectData.Location = new System.Drawing.Point(38, 3);
+            this.buttonSelectData.Location = new System.Drawing.Point(87, 3);
             this.buttonSelectData.Name = "buttonSelectData";
             this.buttonSelectData.Size = new System.Drawing.Size(123, 23);
-            this.buttonSelectData.TabIndex = 0;
+            this.buttonSelectData.TabIndex = 1;
             this.buttonSelectData.Text = "Select analyzer data";
             this.buttonSelectData.UseVisualStyleBackColor = true;
             this.buttonSelectData.Click += new System.EventHandler(this.buttonSelectData_Click);
@@ -173,7 +174,7 @@
             0,
             0,
             0});
-            this.numericUpDownSmoother.Location = new System.Drawing.Point(131, 64);
+            this.numericUpDownSmoother.Location = new System.Drawing.Point(117, 64);
             this.numericUpDownSmoother.Maximum = new decimal(new int[] {
             40,
             0,
@@ -181,20 +182,21 @@
             0});
             this.numericUpDownSmoother.Name = "numericUpDownSmoother";
             this.numericUpDownSmoother.Size = new System.Drawing.Size(46, 20);
-            this.numericUpDownSmoother.TabIndex = 6;
+            this.numericUpDownSmoother.TabIndex = 7;
             this.numericUpDownSmoother.ValueChanged += new System.EventHandler(this.numericUpDownSmoother_ValueChanged);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(23, 66);
+            this.label1.Location = new System.Drawing.Point(6, 66);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(91, 13);
-            this.label1.TabIndex = 5;
+            this.label1.TabIndex = 6;
             this.label1.Text = "Smoothing points:";
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.comboBoxZ0);
             this.panel1.Controls.Add(this.label15);
             this.panel1.Controls.Add(this.label14);
             this.panel1.Controls.Add(this.numericUpDownFmax);
@@ -212,13 +214,26 @@
             this.panel1.Size = new System.Drawing.Size(215, 563);
             this.panel1.TabIndex = 0;
             // 
+            // comboBoxZ0
+            // 
+            this.comboBoxZ0.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxZ0.FormattingEnabled = true;
+            this.comboBoxZ0.Items.AddRange(new object[] {
+            "50 Ohm",
+            "70 Ohm"});
+            this.comboBoxZ0.Location = new System.Drawing.Point(3, 5);
+            this.comboBoxZ0.Name = "comboBoxZ0";
+            this.comboBoxZ0.Size = new System.Drawing.Size(62, 21);
+            this.comboBoxZ0.TabIndex = 0;
+            this.comboBoxZ0.SelectedIndexChanged += new System.EventHandler(this.comboBoxZ0_SelectedIndexChanged);
+            // 
             // label15
             // 
             this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(113, 39);
+            this.label15.Location = new System.Drawing.Point(121, 39);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(29, 13);
-            this.label15.TabIndex = 3;
+            this.label15.TabIndex = 4;
             this.label15.Text = "max:";
             // 
             // label14
@@ -226,9 +241,9 @@
             this.label14.AutoSize = true;
             this.label14.Location = new System.Drawing.Point(10, 39);
             this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(26, 13);
-            this.label14.TabIndex = 1;
-            this.label14.Text = "min:";
+            this.label14.Size = new System.Drawing.Size(49, 13);
+            this.label14.TabIndex = 2;
+            this.label14.Text = "min KHz:";
             // 
             // numericUpDownFmax
             // 
@@ -237,7 +252,7 @@
             0,
             0,
             0});
-            this.numericUpDownFmax.Location = new System.Drawing.Point(147, 35);
+            this.numericUpDownFmax.Location = new System.Drawing.Point(154, 35);
             this.numericUpDownFmax.Maximum = new decimal(new int[] {
             30000,
             0,
@@ -245,7 +260,7 @@
             0});
             this.numericUpDownFmax.Name = "numericUpDownFmax";
             this.numericUpDownFmax.Size = new System.Drawing.Size(56, 20);
-            this.numericUpDownFmax.TabIndex = 4;
+            this.numericUpDownFmax.TabIndex = 5;
             this.numericUpDownFmax.ThousandsSeparator = true;
             this.numericUpDownFmax.ValueChanged += new System.EventHandler(this.numericUpDownFmax_ValueChanged);
             // 
@@ -256,7 +271,7 @@
             0,
             0,
             0});
-            this.numericUpDownFmin.Location = new System.Drawing.Point(39, 35);
+            this.numericUpDownFmin.Location = new System.Drawing.Point(62, 35);
             this.numericUpDownFmin.Maximum = new decimal(new int[] {
             30000,
             0,
@@ -264,7 +279,7 @@
             0});
             this.numericUpDownFmin.Name = "numericUpDownFmin";
             this.numericUpDownFmin.Size = new System.Drawing.Size(56, 20);
-            this.numericUpDownFmin.TabIndex = 2;
+            this.numericUpDownFmin.TabIndex = 3;
             this.numericUpDownFmin.ThousandsSeparator = true;
             this.numericUpDownFmin.ValueChanged += new System.EventHandler(this.numericUpDownFmin_ValueChanged);
             // 
@@ -296,7 +311,7 @@
             this.groupBox2.Location = new System.Drawing.Point(3, 262);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(206, 298);
-            this.groupBox2.TabIndex = 10;
+            this.groupBox2.TabIndex = 11;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Tuner on radio link";
             // 
@@ -633,7 +648,7 @@
             this.groupBox1.Location = new System.Drawing.Point(3, 116);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(206, 140);
-            this.groupBox1.TabIndex = 9;
+            this.groupBox1.TabIndex = 10;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Tuner on serial";
             // 
@@ -693,10 +708,10 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(20, 92);
+            this.label3.Location = new System.Drawing.Point(8, 92);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(104, 13);
-            this.label3.TabIndex = 7;
+            this.label3.TabIndex = 8;
             this.label3.Text = "&Number of segments";
             // 
             // numericUpDownDecimate
@@ -706,20 +721,20 @@
             0,
             0,
             0});
-            this.numericUpDownDecimate.Location = new System.Drawing.Point(134, 90);
+            this.numericUpDownDecimate.Location = new System.Drawing.Point(117, 90);
             this.numericUpDownDecimate.Maximum = new decimal(new int[] {
             167,
             0,
             0,
             0});
             this.numericUpDownDecimate.Minimum = new decimal(new int[] {
-            10,
+            4,
             0,
             0,
             0});
             this.numericUpDownDecimate.Name = "numericUpDownDecimate";
             this.numericUpDownDecimate.Size = new System.Drawing.Size(46, 20);
-            this.numericUpDownDecimate.TabIndex = 8;
+            this.numericUpDownDecimate.TabIndex = 9;
             this.numericUpDownDecimate.Value = new decimal(new int[] {
             50,
             0,
@@ -880,6 +895,7 @@
         private System.Windows.Forms.TextBox textBoxLocalPort;
         private System.Windows.Forms.TextBox textBoxGatewayPort;
         private System.Windows.Forms.Button buttonRestart;
+        private System.Windows.Forms.ComboBox comboBoxZ0;
     }
 }
 
