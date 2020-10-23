@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Mfj998Desktop
@@ -33,7 +29,6 @@ namespace Mfj998Desktop
         Asd smoothed;
         private class networkValue { public double cPf; public double luH; public bool load; }
         Dictionary<double, networkValue> networkDict;
-        Dictionary<int, tunerPoint> tunerPoints;
 
         void applyMinMax()
         {
@@ -86,85 +81,7 @@ namespace Mfj998Desktop
             }
         }
 
-        private void buttonSelectData_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Title = "Open Analyzer File";
-            ofd.Filter = "analyzer files (*.asd)|*.asd|CSV files (*.csv)|*.csv";
-            ofd.CheckFileExists = true;
-            if (ofd.ShowDialog() == DialogResult.OK)
-            {
-                if (ofd.FilterIndex == 1)
-                {
-                    var str = System.IO.File.ReadAllText(ofd.FileName);
-                    measurements = System.Text.Json.JsonSerializer.Deserialize<Asd>(str);
-                }
-                else if (ofd.FilterIndex == 2)
-                {
-                    using (var fs = new System.IO.StreamReader(ofd.FileName))
-                    {
-                        string line;
-                        measurements = new Asd();
-                        measurements.Measurements = new List<Measurement>();
-                        while ((line = fs.ReadLine()) != null)
-                        {
-                            int commapos1 = line.IndexOf(',');
-                            if (commapos1 > 0)
-                            {
-                                int commapos2 = line.IndexOf(',', commapos1 + 1);
-                                if (commapos2 > 0)
-                                {
-                                    var m = new Measurement();
-                                    string fq = line.Substring(0, commapos1);
-                                    m.fq = Double.Parse(fq);
-                                    string r = line.Substring(commapos1 + 1, commapos2 - commapos1 - 1);
-                                    m.r = Double.Parse(r);
-                                    string x = line.Substring(commapos2 + 1);
-                                    m.x = Double.Parse(x);
-                                    measurements.Measurements.Add(m);
-                                }
-                            }
-                        }
-                    }
-                }
-                if ((null != measurements) && (null != measurements.Measurements))
-                {
-                    double minFreq = Double.MaxValue;
-                    double maxFreq = -minFreq;
-                    foreach (var m in measurements.Measurements)
-                    {
-                        if (m.fq < minFreq)
-                            minFreq = m.fq;
-                        if (m.fq > maxFreq)
-                            maxFreq = m.fq;
-                    }
-                    decimal decFmax = (decimal)(maxFreq * 1000);
-                    decimal decFmin = (decimal)(minFreq * 1000);
-                    var temp = pauseUpdate;
-                    pauseUpdate = true;
-                    numericUpDownFmin.Maximum = decFmax;
-                    numericUpDownFmax.Minimum = decFmin;
-                    numericUpDownFmin.Minimum = decFmin;
-                    numericUpDownFmax.Maximum = decFmax;
-                    if (numericUpDownFmax.Value == numericUpDownFmin.Value)
-                    {
-                        numericUpDownFmax.Value  = decFmax;
-                        numericUpDownFmin.Value = decFmin;
-                    }
-
-                    pauseUpdate = temp;
-                    limitedMeasurements = smoothed = measurements;
-                    minMaxToChart();
-                    recalculate();
-                    numericUpDownSmoother.Enabled = true;
-                    buttonDecimate.Enabled = true;
-                }
-                else
-                    smoothed = null;
-            }
-        }
-
-        private double Z0 = 50;
+        private double Z0 = 50; // ohms
         private double TWO_PI = 8 * Math.Atan(1);
 
         private networkValue fromRXf(double r, double x, double fMhz)
@@ -197,7 +114,7 @@ namespace Mfj998Desktop
             }
             double alpha = Math.Sqrt(G - G * G); // can be NaN
             if (alpha >= 0)
-            {   
+            {
                 double Bc = alpha - B;
                 if (Bc >= 0)
                 {   // C on load
@@ -263,82 +180,14 @@ namespace Mfj998Desktop
                     chart.Series["C gen"].Points.Add(cPoint);
             }
             if (null != m_mfj998Port && m_mfj998Port.IsOpen)
-                    buttonDecimate.Enabled = true;
+                buttonSegmentToTuner.Enabled = true;
 
         }
 
-        private void numericUpDownSmoother_ValueChanged(object sender, EventArgs e)
-        {
-            int curVal = (int)numericUpDownSmoother.Value;
-            if (0 != (curVal & 1))
-                numericUpDownSmoother.Value = curVal & ~1;
-            recalculate();
-        }
-
-        static int toTunerUnits(double fMhz)
-        {
-            return (int)((fMhz * 2048) + 1.0);
-        }
-        static double fromTunerUnits(int fRaw)
-        {
-            return fRaw / 2048.0;
-        }
-
-        private void buttonDecimate_Click(object sender, EventArgs e)
-        {
-            // generate number of points in numericUpDownDecimate from data in smoothed.
-            // simple linear interpolation
-            tunerPoints = new Dictionary<int, tunerPoint>();
-            int pointCount = (int)numericUpDownDecimate.Value;
-            double fMin = networkDict.First().Key;
-            double fMax = networkDict.Last().Key;
-            double fSpan = fMax - fMin;
-            double fIncrementMhz = fSpan / pointCount;
-
-            int rawTunerIncrement = toTunerUnits(fIncrementMhz);
-            int incrementHalved = rawTunerIncrement / 2;
-            // force fIncrement into quantize like tuner
-            fIncrementMhz = fromTunerUnits(rawTunerIncrement);
-            double interpolatedFreq;
-            for (int i = 0; i < pointCount; i++)
-            {
-                interpolatedFreq = fMin + i * fIncrementMhz;
-                int tunerFreq = toTunerUnits(interpolatedFreq); // units of halfKhz
-                var Above = networkDict.Keys.Where(p => p >= interpolatedFreq);
-                var Below = networkDict.Keys.Where(p => p <= interpolatedFreq);
-                if (!Above.Any())
-                    break;
-                if (!Below.Any())
-                    break;
-                var keyAbove = Above.First();
-                var keyBelow = Below.Last();
-                double L1 = networkDict[keyAbove].luH;
-                double C1 = networkDict[keyAbove].cPf;
-                if ((keyBelow != keyAbove) && (networkDict[keyAbove].load == networkDict[keyBelow].load))
-                {
-                    double L2 = networkDict[keyBelow].luH;
-                    double C2 = networkDict[keyBelow].cPf;
-                    double fracOfHigher = (interpolatedFreq - keyBelow) / (keyAbove - keyBelow);
-                    double fracOfLower = 1.0 - fracOfHigher;
-                    tunerPoints.Add(tunerFreq - incrementHalved, new tunerPoint(L1 * fracOfHigher + L2 * fracOfLower,
-                                            C1 * fracOfHigher + C2 * fracOfLower, networkDict[keyAbove].load));
-                }
-                else
-                    tunerPoints.Add(tunerFreq - incrementHalved, new tunerPoint(L1, C1, networkDict[keyAbove].load));
-            }
-            buttonDecimate.Enabled = false;
-            buttonDump.Enabled = false;
-            var toMfj = new ToTunerEeprom(tunerPoints, rawTunerIncrement, m_mfj998Port);
-            toMfj.toTuner((bool ok) =>
-            {
-                this.BeginInvoke(new Action(EnableDecimateButton));
-            });
-        }
-        private void EnableDecimateButton()
-        {
-            buttonDecimate.Enabled = true;
-            buttonDump.Enabled = true;
-        }
+        public static int toTunerUnits(double fMhz)
+        { return (int)((fMhz * 2048) + 0.5); }
+        public static double fromTunerUnits(int fRaw)
+        { return fRaw / 2048.0; }
 
         private void DesktopForm_Load(object sender, EventArgs e)
         {
@@ -346,41 +195,25 @@ namespace Mfj998Desktop
             labelRef.Text = "";
             labelSwr.Text = "";
             labelFreq.Text = "";
+            labelTelemetry.Text = "";
+            labelRestoreState.Text = "";
+            labelCpos.Text = "";
             comboBoxZ0.SelectedIndex = 0;
         }
         private System.IO.Ports.SerialPort m_mfj998Port;
-        private void comboBoxTunerPorts_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (m_mfj998Port != null)
-                m_mfj998Port.Dispose();
-            m_mfj998Port = null;
-            String comName = comboBoxTunerPorts.SelectedItem.ToString();
-            if (comName == "None")
-                return;
-            m_mfj998Port = new System.IO.Ports.SerialPort(comName,
-               38400, System.IO.Ports.Parity.None, 8, System.IO.Ports.StopBits.One);
-            m_mfj998Port.Handshake = System.IO.Ports.Handshake.None;
-            m_mfj998Port.Encoding = new System.Text.ASCIIEncoding();
-            m_mfj998Port.RtsEnable = true;
-            m_mfj998Port.DtrEnable = false;
-            m_mfj998Port.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(port_DataReceived);
-            m_mfj998Port.Open();
-            if (null != networkDict)
-                buttonDecimate.Enabled = true;
-            buttonClearEEPROM.Enabled = true;
-            buttonDump.Enabled = true;
-            if (m_mfj998Port.IsOpen)
-                m_mfj998Port.WriteLine("SET S=0");
-        }
         private void port_DataReceived(object sender,
                       System.IO.Ports.SerialDataReceivedEventArgs e)
         {
-            BeginInvoke(new Action(ReadNow));
+            BeginInvoke(new Action(ReadLocalNow));
         }
 
         private string mfj998Incoming;
 
-        private void ReadNow()
+        private delegate void OnLocalTunerString(string s);
+
+        OnLocalTunerString onLocalTunerString = null;
+
+        private void ReadLocalNow()
         {
             String s = m_mfj998Port.ReadExisting();
             mfj998Incoming += s;
@@ -391,55 +224,15 @@ namespace Mfj998Desktop
                 string toPrint = null;
                 if (idx > 0)
                     toPrint = mfj998Incoming.Substring(0, idx);
-                mfj998Incoming = mfj998Incoming.Substring(idx+1);
+                mfj998Incoming = mfj998Incoming.Substring(idx + 1);
                 if (!String.IsNullOrEmpty(toPrint))
-                    textBoxLocalPort.AppendText(toPrint+"\r\n");
-            }
-        }
-
-        private void buttonClearEEPROM_Click(object sender, EventArgs e)
-        {
-            if (null != m_mfj998Port && m_mfj998Port.IsOpen)
-            {
-                m_mfj998Port.WriteLine("EEPROM INDEX ERASE");
-            }
-        }
-
-        private void buttonDump_Click(object sender, EventArgs e)
-        {
-            if (null != m_mfj998Port && m_mfj998Port.IsOpen)
-            {
-
-                string cmd = "EEPROM DUMP INDEX";
-                int tunerMin = toTunerUnits(0.001 * (double)numericUpDownFmin.Value);
-                if (tunerMin > 100)
                 {
-                    cmd += " f=";
-                    cmd += tunerMin.ToString();
+                    textBoxLocalPort.AppendText(toPrint + "\r\n");
+                    onLocalTunerString?.Invoke(toPrint);
                 }
-                m_mfj998Port.WriteLine(cmd);
             }
         }
 
-        private System.IO.Ports.SerialPort m_gatewayPort;
-        private void comboBoxGatewayPorts_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (m_gatewayPort != null)
-                m_gatewayPort.Dispose();
-            m_gatewayPort = null;
-            String comName = comboBoxGatewayPorts.SelectedItem.ToString();
-            if (comName == "None")
-                return;
-            m_gatewayPort = new System.IO.Ports.SerialPort(comName,
-               9600, System.IO.Ports.Parity.None, 8, System.IO.Ports.StopBits.One);
-            m_gatewayPort.Handshake = System.IO.Ports.Handshake.None;
-            m_gatewayPort.Encoding = new System.Text.ASCIIEncoding();
-            m_gatewayPort.RtsEnable = true;
-            m_gatewayPort.DtrEnable = false;
-            m_gatewayPort.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(gateway_DataReceived);
-            m_gatewayPort.Open();
-
-        }
         private void gateway_DataReceived(object sender,
                             System.IO.Ports.SerialDataReceivedEventArgs e)
         {
@@ -467,7 +260,7 @@ namespace Mfj998Desktop
                 {
                     labelTelemetry.Text = toPrint;
                     if (!String.IsNullOrEmpty(toPrint))
-                       textBoxGatewayPort.AppendText(toPrint+"\r\n");
+                        textBoxGatewayPort.AppendText(toPrint + "\r\n");
                     int xidx = toPrint.IndexOf("X:");
                     if (xidx > 0)
                     {
@@ -491,7 +284,7 @@ namespace Mfj998Desktop
                         int refend = toPrint.IndexOf(" ", refidx);
                         if ((fwdend > 0) && (refend > 0))
                         {
-                            int fwd = Int32.Parse(toPrint.Substring(fwdidx+2, fwdend - fwdidx - 2));
+                            int fwd = Int32.Parse(toPrint.Substring(fwdidx + 2, fwdend - fwdidx - 2));
                             int refl = Int32.Parse(toPrint.Substring(refidx + 2, refend - refidx - 2));
                             const double CALI = 2443.0;
                             double fPower = 100.0 * (fwd * fwd) / (CALI * CALI);
@@ -515,9 +308,9 @@ namespace Mfj998Desktop
                             }
                         }
                     }
-                    ToLabel(toPrint, "C:", numericUpDownC, (int i) => { labelCpf.Text = String.Format("{0:0.} pF", 15.5*i); lastTunerC = i; return i; });
+                    ToLabel(toPrint, "C:", numericUpDownC, (int i) => { labelCpf.Text = String.Format("{0:0.} pF", 15.5 * i); lastTunerC = i; return i; });
                     ToLabel(toPrint, "L:", numericUpDownL, (int i) => { labelLnH.Text = String.Format("{0:0.0} nH", .095 * i); lastTunerL = i; return i; });
-                    ToLabel(toPrint, "P:", numericUpDownP, (int i) => { lastTunerP = i; return i; });
+                    ToLabel(toPrint, "P:", numericUpDownP, (int i) => { labelCpos.Text = (i == 2) ? "Load" : "Gen";  lastTunerP = i; return i; });
                     ToSwrSetting(toPrint, "T:", numericUpDownTrigger);
                     ToSwrSetting(toPrint, "S:", numericUpDownStop);
                 }
@@ -525,7 +318,7 @@ namespace Mfj998Desktop
         }
         private delegate int ConvertToUI(int tuner);
 
-        private void ToLabel(string incoming, string tomatch, System.Windows.Forms.NumericUpDown lbl, ConvertToUI cui )
+        private void ToLabel(string incoming, string tomatch, System.Windows.Forms.NumericUpDown lbl, ConvertToUI cui)
         {
             int fwdidx = incoming.IndexOf(tomatch);
             char[] nl = { ']', ' ' };
@@ -584,7 +377,8 @@ namespace Mfj998Desktop
                 var nodeId = (int)numericUpDownNodeId.Value;
                 var timerChangeNodeId = new System.Timers.Timer(1000);
                 timerChangeNodeId.Elapsed +=
-                (o, ev) => {
+                (o, ev) =>
+                {
                     string cmd2 = string.Format("SendMessageToNode {0} SET T=1000", nodeId);
                     m_gatewayPort.WriteLine(cmd2);
                     timerChangeNodeId.Dispose();
@@ -594,11 +388,618 @@ namespace Mfj998Desktop
             }
         }
 
+        #region main parameters
+        private void buttonSelectData_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Title = "Open Analyzer File";
+            ofd.Filter = "analyzer files (*.asd)|*.asd|CSV files (*.csv)|*.csv";
+            ofd.CheckFileExists = true;
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                if (ofd.FilterIndex == 1)
+                {
+                    var str = System.IO.File.ReadAllText(ofd.FileName);
+                    measurements = System.Text.Json.JsonSerializer.Deserialize<Asd>(str);
+                }
+                else if (ofd.FilterIndex == 2)
+                {
+                    using (var fs = new System.IO.StreamReader(ofd.FileName))
+                    {
+                        string line;
+                        measurements = new Asd();
+                        measurements.Measurements = new List<Measurement>();
+                        while ((line = fs.ReadLine()) != null)
+                        {
+                            int commapos1 = line.IndexOf(',');
+                            if (commapos1 > 0)
+                            {
+                                int commapos2 = line.IndexOf(',', commapos1 + 1);
+                                if (commapos2 > 0)
+                                {
+                                    var m = new Measurement();
+                                    string fq = line.Substring(0, commapos1);
+                                    m.fq = Double.Parse(fq);
+                                    string r = line.Substring(commapos1 + 1, commapos2 - commapos1 - 1);
+                                    m.r = Double.Parse(r);
+                                    string x = line.Substring(commapos2 + 1);
+                                    m.x = Double.Parse(x);
+                                    measurements.Measurements.Add(m);
+                                }
+                            }
+                        }
+                    }
+                }
+                if ((null != measurements) && (null != measurements.Measurements))
+                {
+                    double minFreq = Double.MaxValue;
+                    double maxFreq = -minFreq;
+                    foreach (var m in measurements.Measurements)
+                    {
+                        if (m.fq < minFreq)
+                            minFreq = m.fq;
+                        if (m.fq > maxFreq)
+                            maxFreq = m.fq;
+                    }
+                    decimal decFmax = (decimal)(maxFreq * 1000);
+                    decimal decFmin = (decimal)(minFreq * 1000);
+                    var temp = pauseUpdate;
+                    pauseUpdate = true;
+                    numericUpDownFmin.Maximum = decFmax;
+                    numericUpDownFmax.Minimum = decFmin;
+                    numericUpDownFmin.Minimum = decFmin;
+                    numericUpDownFmax.Maximum = decFmax;
+                    if (numericUpDownFmax.Value == numericUpDownFmin.Value)
+                    {
+                        numericUpDownFmax.Value = decFmax;
+                        numericUpDownFmin.Value = decFmin;
+                    }
+
+                    pauseUpdate = temp;
+                    limitedMeasurements = smoothed = measurements;
+                    minMaxToChart();
+                    recalculate();
+                    numericUpDownSmoother.Enabled = true;
+                    buttonSegmentToTuner.Enabled = true;
+                }
+                else
+                    smoothed = null;
+            }
+        }
+        private void numericUpDownSmoother_ValueChanged(object sender, EventArgs e)
+        {
+            int curVal = (int)numericUpDownSmoother.Value;
+            if (0 != (curVal & 1))
+                numericUpDownSmoother.Value = curVal & ~1;
+            recalculate();
+        }
+        private void comboBoxZ0_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (comboBoxZ0.SelectedIndex == 0)
+                Z0 = 50;
+            else if (comboBoxZ0.SelectedIndex == 1)
+                Z0 = 70;
+            recalculate();
+        }
+        private void numericUpDownFmin_ValueChanged(object sender, EventArgs e)
+        {
+            if (pauseUpdate)
+                return;
+            minMaxToChart();
+            recalculate();
+        }
+        private void numericUpDownFmax_ValueChanged(object sender, EventArgs e)
+        {
+            if (pauseUpdate)
+                return;
+            minMaxToChart();
+            recalculate();
+        }
+        #endregion
+
+        void EnableDisableControlsLocal(bool en)
+        {
+            buttonClearEEPROM.Enabled = en;
+            buttonDump.Enabled = en;
+            buttonBackupTuner.Enabled = en;
+            buttonRestoreTuner.Enabled = en;
+            buttonSegmentToTuner.Enabled = en && null != networkDict;
+        }
+
+        #region local tuner buttons
+        private void comboBoxTunerPorts_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (m_mfj998Port != null)
+                m_mfj998Port.Dispose();
+            m_mfj998Port = null;
+            String comName = comboBoxTunerPorts.SelectedItem.ToString();
+            try
+            {
+                if (comName == "None")
+                    return;
+                m_mfj998Port = new System.IO.Ports.SerialPort(comName,
+                   38400, System.IO.Ports.Parity.None, 8, System.IO.Ports.StopBits.One);
+                m_mfj998Port.Handshake = System.IO.Ports.Handshake.None;
+                m_mfj998Port.Encoding = new System.Text.ASCIIEncoding();
+                m_mfj998Port.RtsEnable = true;
+                m_mfj998Port.DtrEnable = false;
+                m_mfj998Port.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(port_DataReceived);
+                m_mfj998Port.Open();
+                if (m_mfj998Port.IsOpen)
+                    m_mfj998Port.WriteLine("SET S=0");
+            }
+            finally
+            {
+                EnableDisableControlsLocal(null != m_mfj998Port && m_mfj998Port.IsOpen);
+            }
+        }
+        private void comboBoxTunerPorts_DropDown(object sender, EventArgs e)
+        {
+            comboBoxTunerPorts.Items.Clear();
+            comboBoxTunerPorts.Items.Add("None");
+            foreach (string s in System.IO.Ports.SerialPort.GetPortNames())
+                comboBoxTunerPorts.Items.Add(s);
+        }
+        private void buttonSegmentToTuner_Click(object sender, EventArgs e)
+        {
+            // generate number of points in numericUpDownDecimate from data in smoothed.
+            // simple linear interpolation
+            var tunerPoints = new Dictionary<int, tunerPoint>();
+            int pointCount = (int)numericUpDownDecimate.Value;
+            double fMin = networkDict.First().Key;
+            double fMax = networkDict.Last().Key;
+            double fSpan = fMax - fMin;
+            double fIncrementMhz = fSpan / pointCount;
+
+            int rawTunerIncrement = toTunerUnits(fIncrementMhz);
+            int incrementHalved = (rawTunerIncrement+1) / 2;
+            // force fIncrement into quantize like tuner
+            fIncrementMhz = fromTunerUnits(incrementHalved * 2);
+            for (int i = 0; i < pointCount; i++)
+            {
+                double bottomOfSegmentMhz = fMin + i * fIncrementMhz;
+                int tunerFreq = toTunerUnits(bottomOfSegmentMhz); // units of halfKhz
+                double interpolatedFreq = bottomOfSegmentMhz + fIncrementMhz / 2;
+                var Above = networkDict.Keys.Where(p => p >= interpolatedFreq);
+                var Below = networkDict.Keys.Where(p => p <= interpolatedFreq);
+                if (!Above.Any())
+                    break;
+                if (!Below.Any())
+                    break;
+                var keyAbove = Above.First();
+                var keyBelow = Below.Last();
+                double L1 = networkDict[keyAbove].luH;
+                double C1 = networkDict[keyAbove].cPf;
+                if ((keyBelow != keyAbove) && (networkDict[keyAbove].load == networkDict[keyBelow].load))
+                {
+                    double L2 = networkDict[keyBelow].luH;
+                    double C2 = networkDict[keyBelow].cPf;
+                    double fracOfHigher = (interpolatedFreq - keyBelow) / (keyAbove - keyBelow);
+                    double fracOfLower = 1.0 - fracOfHigher;
+                    tunerPoints.Add(tunerFreq, new tunerPoint(L1 * fracOfHigher + L2 * fracOfLower,
+                                            C1 * fracOfHigher + C2 * fracOfLower, networkDict[keyAbove].load));
+                }
+                else
+                    tunerPoints.Add(tunerFreq, new tunerPoint(L1, C1, networkDict[keyAbove].load));
+            }
+            EnableDisableControlsLocal(false);
+            var toMfj = new ToTunerEeprom(tunerPoints, rawTunerIncrement, m_mfj998Port);
+            toMfj.toTuner((bool ok) =>
+            {
+                this.BeginInvoke(new Action(EnableControlsIfPort));
+            });
+        }
+        private void EnableControlsIfPort()
+        {
+            EnableDisableControlsLocal(null != m_mfj998Port && m_mfj998Port.IsOpen);
+        }
+        private void buttonClearEEPROM_Click(object sender, EventArgs e)
+        {
+            if (null != m_mfj998Port && m_mfj998Port.IsOpen && MessageBox.Show(this, "Erase all presets?", "MFJ998", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                m_mfj998Port.WriteLine("EEPROM INDEX ERASE");
+            }
+        }
+        private void buttonDump_Click(object sender, EventArgs e)
+        {
+            if (null != m_mfj998Port && m_mfj998Port.IsOpen)
+            {
+
+                string cmd = "EEPROM DUMP INDEX";
+                int tunerMin = toTunerUnits(0.001 * (double)numericUpDownFmin.Value);
+                if (tunerMin > 100)
+                {
+                    cmd += " f=";
+                    cmd += tunerMin.ToString();
+                }
+                m_mfj998Port.WriteLine(cmd);
+            }
+        }
+        private void buttonBackupTuner_Click(object sender, EventArgs e)
+        {
+            if (null != m_mfj998Port && m_mfj998Port.IsOpen)
+            {
+                SaveFileDialog sfd = new SaveFileDialog();
+                sfd.Title = "Create Backup Text File";
+                sfd.Filter = "Backup  (*.txt)|*.txt";
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        EnableDisableControlsLocal(false);
+                        using (var fs = new System.IO.StreamWriter(sfd.FileName))
+                        {
+                            fs.WriteLine("MFJ998 Desktop Backup File");
+                            fs.WriteLine("! comments start with !");
+                            fs.WriteLine("! BAND command requires f=<MHz> inc=<KHz> n=<count> frequencies are in increments of 1/2048");
+                            fs.WriteLine("!  ENTRY command requires C= L= P=");
+
+                            var onlocal = new OnLocalLineCreateBackup(fs, m_mfj998Port);
+                            onLocalTunerString = (string s) => onlocal.OnIndexLine(s);
+                            bool ok = onlocal.InitIndex();
+                            if (ok)
+                            {
+                                onLocalTunerString = (string s) => onlocal.OnEntryLine(s);
+                                for (int i = 0; i < onlocal.NumEntries && ok; i++)
+                                    ok = onlocal.GetIndexEntry(i);
+                            }
+                            if (ok)
+                                onlocal.CommandsToFile();
+                        }
+                    }
+                    finally
+                    {
+                        onLocalTunerString = null;
+                        EnableControlsIfPort();
+                    }
+                }
+            }
+        }
+
+        const int MAX_LINDEX = 257;
+        const int MAX_CINDEX_GENERATOR = 255;
+        const int MAX_CINDEX_LOAD = 63;
+        private void buttonRestoreTuner_Click(object sender, EventArgs e)
+        {
+            if (null != m_mfj998Port && m_mfj998Port.IsOpen)
+            {
+                if (MessageBox.Show(this, "Do you really want to overwrite the EEPROM?", "Mfj998", MessageBoxButtons.YesNo) != DialogResult.Yes)
+                    return;
+                OpenFileDialog ofd = new OpenFileDialog();
+                ofd.Title = "Open Backup Text File";
+                ofd.Filter = "Backup  (*.txt)|*.txt";
+                ofd.CheckFileExists = true;
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    bool reenable = true;
+                    try
+                    {
+                        EnableDisableControlsLocal(false);
+                        using (var fs = new System.IO.StreamReader(ofd.FileName))
+                        {
+                            string line;
+                            double fMhz=0;
+                            double incKHz=0;
+                            int n=0;
+                            int whichPoint = 0;
+                            bool doClear = false;
+                            Dictionary<int, tunerPoint> tunerPoints = null;
+                            List<ToTunerEeprom> segments = new List<ToTunerEeprom>();
+
+                            while ((line = fs.ReadLine()) != null)
+                            {
+                                var spaces = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                                if (spaces.Length == 0 || spaces[0].StartsWith("!"))
+                                    continue;
+                                if (spaces[0].ToUpper() == "CLEAR")
+                                    doClear = true;
+                                else if (spaces[0].ToUpper() == "BAND")
+                                {
+                                    fMhz = 0; incKHz = 0; n = 0;
+                                    foreach (var v in spaces)
+                                    {
+                                        var x = v.ToLower();
+                                        if (x.StartsWith("f="))
+                                            fMhz = Double.Parse(x.Substring(2));
+                                        else if (x.StartsWith("inc="))
+                                            incKHz = Double.Parse(x.Substring(4));
+                                        else if (x.StartsWith("n="))
+                                            n = Int32.Parse(x.Substring(2));
+                                    }
+                                    tunerPoints = new Dictionary<int, tunerPoint>();
+                                    whichPoint = 0;
+                                }
+                                else if (spaces[0].ToUpper() == "ENTRY")
+                                {
+                                    int cIdx = -1;
+                                    double C = 0;
+                                    int lIdx = -1;
+                                    double L = 0;
+                                    bool onLoad = false;
+                                    foreach (var v in spaces)
+                                    {
+                                        var x = v.ToUpper();
+                                        if (x.StartsWith("C=") && x.EndsWith("PF"))
+                                            C = Double.Parse(x.Substring(2, x.Length - 4));
+                                        else if (x.StartsWith("L=") && x.EndsWith("NH"))
+                                            L = Double.Parse(x.Substring(2, x.Length - 4));
+                                        else if (x == "P=L")
+                                            onLoad = true;
+                                    }
+
+                                    cIdx = tunerPoint.toCidx(C);
+                                    lIdx = tunerPoint.toLidx(L);
+                                    if (lIdx > MAX_LINDEX || lIdx < 0)
+                                        throw new System.Exception("L maximum is " + tunerPoint.nHfromLidx(MAX_LINDEX).ToString());
+                                    int cMaxIdx = onLoad ? MAX_CINDEX_LOAD : MAX_CINDEX_GENERATOR;
+                                    if (cIdx > cMaxIdx || cIdx < 0)
+                                        throw new System.Exception("C maximum is " + tunerPoint.pFfromCidx(cMaxIdx));
+
+                                    if (whichPoint >= n)
+                                        throw new System.Exception("Too many points for f=" + fMhz.ToString());
+
+                                    var tp = new tunerPoint(L, C, onLoad);
+                                    tunerPoints.Add(DesktopForm.toTunerUnits(fMhz + 0.001 * incKHz * whichPoint++), tp);
+                                }
+                                else if (spaces[0].ToUpper() == "WRITE")
+                                {
+                                    while (whichPoint < n)
+                                        tunerPoints.Add(DesktopForm.toTunerUnits(fMhz + .001 * incKHz * whichPoint++), new tunerPoint(0, 0, false));
+                                    segments.Add(new ToTunerEeprom(tunerPoints, DesktopForm.toTunerUnits(incKHz / 1000), m_mfj998Port));
+                                }
+                            }
+                            if (segments.Any())
+                            {
+                                reenable = false;
+                                nextSegment(segments, 0, doClear);
+                            }
+                        }
+                    }
+                    catch (System.Exception exc)
+                    {
+                        MessageBox.Show(this, exc.Message, "MFJ 998");
+                    }
+                    finally
+                    {
+                        if (reenable)
+                            EnableControlsIfPort();
+                    }
+                }
+            }
+        }
+
+        private void nextSegment(List<ToTunerEeprom> segments, int which, bool doClear)
+        {
+            int next = which + 1;
+            segments[which].toTuner(
+                (bool ok) => {
+                    if (!ok || next >= segments.Count)
+                        BeginInvoke(new Action(() => {
+                            labelRestoreState.Text = "";
+                            EnableControlsIfPort(); 
+                            }));
+                    else
+                    {
+                        nextSegment(segments, next, false);
+                    }
+                }, 
+                doClear);
+            BeginInvoke(new Action(() => {
+                labelRestoreState.Text = "Restoring segment " + (which + 1).ToString();
+                }));
+        }
+
+        private class OnLocalLineCreateBackup
+        {
+            private System.IO.StreamWriter writer;
+            private System.IO.Ports.SerialPort sp;
+            private bool waiting = true;
+            private bool timedout = false;
+
+            public OnLocalLineCreateBackup(System.IO.StreamWriter sw, System.IO.Ports.SerialPort p)
+            {
+                writer = sw;
+                sp = p;
+            }
+
+            private System.Timers.Timer startTimer()
+            {
+                var t = new System.Timers.Timer();
+                t.Interval = 1000;
+                t.Elapsed += (object sender, System.Timers.ElapsedEventArgs e) => { timedout = true; };
+                waiting = true;
+                timedout = false;
+                t.Enabled = true;
+                return t;
+            }
+
+            public bool InitIndex()
+            {
+                indexEntries = new List<IndexEntry>();
+                tableEntries = new Dictionary<int, Dictionary<int, TableEntry>>();
+                sp.WriteLine("EEPROM DUMP INDEX");
+                var t = startTimer();
+                while (waiting && !timedout)
+                    Application.DoEvents();
+
+                t.Enabled = false;
+                t.Dispose();
+                return !waiting;
+            }
+
+            public bool GetIndexEntry(int which)
+            {
+                sp.WriteLine("EEPROM DUMP f=" + (indexEntries[which].f + indexEntries[which].I / 2).ToString());
+                var t = startTimer();
+                while (waiting && !timedout)
+                    Application.DoEvents();
+
+                t.Enabled = false;
+                t.Dispose();
+                return !waiting;
+            }
+
+            private class IndexEntry
+            {
+                public int f;
+                public int n;
+                public int I;
+                public int addr;
+                public int index;
+            }
+
+            private class TableEntry
+            {
+                public int f;
+                public int C;
+                public int L;
+                public int P;
+            }
+
+            private List<IndexEntry> indexEntries;
+
+            public int NumEntries { get { return indexEntries.Count; } }
+
+            public void OnIndexLine(string s)
+            {
+                writer.WriteLine("! log: " + s);
+                if (s.ToUpper().Contains("EEPROM DUMP DONE"))
+                    waiting = false;
+                else
+                {
+                    var split = s.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    var ie = new IndexEntry();
+                    foreach (var p in split)
+                    {
+                        if (p.StartsWith("f="))
+                            ie.f = Int32.Parse(p.Substring(2));
+                        else if (p.StartsWith("I="))
+                            ie.I = Int32.Parse(p.Substring(2));
+                        else if (p.StartsWith("addr=0x"))
+                            Int32.TryParse(p.Substring(7), System.Globalization.NumberStyles.HexNumber, null, out ie.addr);
+                        else if (p.StartsWith("n="))
+                            ie.n = Int32.Parse(p.Substring(2));
+                        else if (p.StartsWith("index="))
+                            ie.index = Int32.Parse(p.Substring(6));
+                    }
+                    indexEntries.Add(ie);
+                }
+            }
+
+            private Dictionary<int, Dictionary<int, TableEntry>> tableEntries;
+
+            public void OnEntryLine(string s)
+            {
+                writer.WriteLine("! log: " + s);
+                if (s.ToUpper().Contains("EEPROM DUMP DONE"))
+                    waiting = false;
+                else
+                {
+                    var split = s.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (split.Length == 2 && split[0].StartsWith("f="))
+                    {
+                        var te = new TableEntry();
+                        te.f = Int32.Parse(split[0].Substring(2));
+                        var commas = split[1].Split(',');
+                        if (commas.Length == 5)
+                        {
+                            int i = Int32.Parse(commas[0]);
+                            int j = Int32.Parse(commas[1]);
+                            te.C = Int32.Parse(commas[2]);
+                            te.L = Int32.Parse(commas[3]);
+                            te.P = Int32.Parse(commas[4]);
+                            Dictionary<int, TableEntry> tee = null;
+                            tableEntries.TryGetValue(i, out tee);
+                            if (tee == null)
+                            {
+                                tee = new Dictionary<int, TableEntry>();
+                                tableEntries[i] = tee;
+                            }
+                            tee.Add(j, te);
+                        }
+                    }
+                }
+            }
+
+            public void CommandsToFile()
+            {
+                writer.WriteLine("CLEAR");
+                foreach (var idx in tableEntries)
+                {
+                    bool first = true;
+                    int f = indexEntries[idx.Key].f;
+                    int I = indexEntries[idx.Key].I;
+                    foreach (var te in idx.Value)
+                    {
+                        if (first)
+                        {
+                            first = false;
+                            var fout = DesktopForm.fromTunerUnits(f);
+                            var iout = DesktopForm.fromTunerUnits(I) * 1000;
+                            writer.WriteLine(String.Format("BAND f={0} inc={1} n={2} fmax={3}",
+                                fout,
+                                iout,
+                                idx.Value.Count,
+                                DesktopForm.fromTunerUnits(f + idx.Value.Count * I)));
+#if DEBUG
+                            var res = DesktopForm.toTunerUnits(Double.Parse(fout.ToString()));
+                            if (res != f)
+                                throw new System.Exception("does not convert");
+                            res = DesktopForm.toTunerUnits(Double.Parse(iout.ToString()) / 1000);
+                            if (res != I)
+                                throw new System.Exception("does not convert");
+#endif
+
+                        }
+                        var pF = tunerPoint.pFfromCidx(te.Value.C);
+                        var nH = tunerPoint.nHfromLidx(te.Value.L);
+                        writer.WriteLine(String.Format(" ENTRY C={1}pF L={2}nH P={3} f={0}",
+                            DesktopForm.fromTunerUnits(f + I * te.Key),
+                            pF,
+                            nH,
+                            te.Value.P == 1 ? "L" : "G"
+                            ));
+
+#if DEBUG
+                        var temp = tunerPoint.toCidx(Double.Parse(pF.ToString()));
+                        if (temp != te.Value.C)
+                            throw new System.Exception("does not convert");
+                        temp = tunerPoint.toLidx(Double.Parse(nH.ToString()));
+                        if (temp != te.Value.L)
+                            throw new System.Exception("does not convert");
+#endif
+                    }
+                    writer.WriteLine(" WRITE");
+                }
+            }
+
+        }
+        #endregion
+
+        #region radio tuner buttons
+        private System.IO.Ports.SerialPort m_gatewayPort;
+        private void comboBoxGatewayPorts_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (m_gatewayPort != null)
+                m_gatewayPort.Dispose();
+            m_gatewayPort = null;
+            String comName = comboBoxGatewayPorts.SelectedItem.ToString();
+            if (comName == "None")
+                return;
+            m_gatewayPort = new System.IO.Ports.SerialPort(comName,
+               9600, System.IO.Ports.Parity.None, 8, System.IO.Ports.StopBits.One);
+            m_gatewayPort.Handshake = System.IO.Ports.Handshake.None;
+            m_gatewayPort.Encoding = new System.Text.ASCIIEncoding();
+            m_gatewayPort.RtsEnable = true;
+            m_gatewayPort.DtrEnable = false;
+            m_gatewayPort.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(gateway_DataReceived);
+            m_gatewayPort.Open();
+
+        }
         private void numericUpDownNodeId_ValueChanged(object sender, EventArgs e)
         {
             restartTelemetry();
         }
-
         private void numericUpDownC_ValueChanged(object sender, EventArgs e)
         {
             if (!m_ignoreChange && null != m_gatewayPort && m_gatewayPort.IsOpen)
@@ -607,7 +1008,6 @@ namespace Mfj998Desktop
                 m_gatewayPort.WriteLine(cmd);
             }
         }
-
         private void numericUpDownL_ValueChanged(object sender, EventArgs e)
         {
             if (!m_ignoreChange && null != m_gatewayPort && m_gatewayPort.IsOpen)
@@ -616,7 +1016,6 @@ namespace Mfj998Desktop
                 m_gatewayPort.WriteLine(cmd);
             }
         }
-
         private void numericUpDownP_ValueChanged(object sender, EventArgs e)
         {
             if (!m_ignoreChange && null != m_gatewayPort && m_gatewayPort.IsOpen)
@@ -625,7 +1024,6 @@ namespace Mfj998Desktop
                 m_gatewayPort.WriteLine(cmd);
             }
         }
-
         private void numericUpDownTrigger_ValueChanged(object sender, EventArgs e)
         {
             if (!m_ignoreChange && null != m_gatewayPort && m_gatewayPort.IsOpen)
@@ -647,7 +1045,6 @@ namespace Mfj998Desktop
                 numericUpDownStop.Value = numericUpDownTrigger.Value;
             numericUpDownStop.Maximum = numericUpDownTrigger.Value;
         }
-
         private void numericUpDownStop_ValueChanged(object sender, EventArgs e)
         {
             if (!m_ignoreChange && null != m_gatewayPort && m_gatewayPort.IsOpen)
@@ -660,24 +1057,6 @@ namespace Mfj998Desktop
                 m_gatewayPort.WriteLine(cmd);
             }
         }
-
-        private bool pauseUpdate = false;
-        private void numericUpDownFmin_ValueChanged(object sender, EventArgs e)
-        {
-            if (pauseUpdate)
-                return;
-            minMaxToChart();
-            recalculate();
-        }
-
-        private void numericUpDownFmax_ValueChanged(object sender, EventArgs e)
-        {
-            if (pauseUpdate)
-                return;
-            minMaxToChart();
-            recalculate();
-        }
-
         private void comboBoxGatewayPorts_DropDown(object sender, EventArgs e)
         {
             comboBoxGatewayPorts.Items.Clear();
@@ -685,15 +1064,6 @@ namespace Mfj998Desktop
             foreach (string s in System.IO.Ports.SerialPort.GetPortNames())
                 comboBoxGatewayPorts.Items.Add(s);
         }
-
-        private void comboBoxTunerPorts_DropDown(object sender, EventArgs e)
-        {
-            comboBoxTunerPorts.Items.Clear();
-            comboBoxTunerPorts.Items.Add("None");
-            foreach (string s in System.IO.Ports.SerialPort.GetPortNames())
-                comboBoxTunerPorts.Items.Add(s);
-        }
-
         private void buttonSetEEPROM_Click(object sender, EventArgs e)
         {
             if (lastTunerFreq == 0)
@@ -708,13 +1078,10 @@ namespace Mfj998Desktop
             restartTelemetry();
         }
 
-        private void comboBoxZ0_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (comboBoxZ0.SelectedIndex == 0)
-                Z0 = 50;
-            else if (comboBoxZ0.SelectedIndex == 1)
-                Z0 = 70;
-            recalculate();
-        }
+        #endregion
+
+
+        private bool pauseUpdate = false;
+
     }
 }

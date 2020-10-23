@@ -77,8 +77,10 @@
             this.label7 = new System.Windows.Forms.Label();
             this.labelSwr = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.buttonRestoreTuner = new System.Windows.Forms.Button();
+            this.buttonBackupTuner = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
-            this.buttonDecimate = new System.Windows.Forms.Button();
+            this.buttonSegmentToTuner = new System.Windows.Forms.Button();
             this.comboBoxTunerPorts = new System.Windows.Forms.ComboBox();
             this.buttonClearEEPROM = new System.Windows.Forms.Button();
             this.buttonDump = new System.Windows.Forms.Button();
@@ -88,6 +90,8 @@
             this.splitContainerLogs = new System.Windows.Forms.SplitContainer();
             this.textBoxLocalPort = new System.Windows.Forms.TextBox();
             this.textBoxGatewayPort = new System.Windows.Forms.TextBox();
+            this.labelRestoreState = new System.Windows.Forms.Label();
+            this.labelCpos = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.chart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSmoother)).BeginInit();
             this.panel1.SuspendLayout();
@@ -285,6 +289,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.labelCpos);
             this.groupBox2.Controls.Add(this.buttonRestart);
             this.groupBox2.Controls.Add(this.buttonSetEEPROM);
             this.groupBox2.Controls.Add(this.labelLnH);
@@ -640,8 +645,11 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.labelRestoreState);
+            this.groupBox1.Controls.Add(this.buttonRestoreTuner);
+            this.groupBox1.Controls.Add(this.buttonBackupTuner);
             this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Controls.Add(this.buttonDecimate);
+            this.groupBox1.Controls.Add(this.buttonSegmentToTuner);
             this.groupBox1.Controls.Add(this.comboBoxTunerPorts);
             this.groupBox1.Controls.Add(this.buttonClearEEPROM);
             this.groupBox1.Controls.Add(this.buttonDump);
@@ -652,31 +660,56 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Tuner on serial";
             // 
+            // buttonRestoreTuner
+            // 
+            this.buttonRestoreTuner.AutoSize = true;
+            this.buttonRestoreTuner.Enabled = false;
+            this.buttonRestoreTuner.Location = new System.Drawing.Point(121, 94);
+            this.buttonRestoreTuner.Name = "buttonRestoreTuner";
+            this.buttonRestoreTuner.Size = new System.Drawing.Size(81, 23);
+            this.buttonRestoreTuner.TabIndex = 6;
+            this.buttonRestoreTuner.Text = "Restore...";
+            this.buttonRestoreTuner.UseVisualStyleBackColor = true;
+            this.buttonRestoreTuner.Click += new System.EventHandler(this.buttonRestoreTuner_Click);
+            // 
+            // buttonBackupTuner
+            // 
+            this.buttonBackupTuner.AutoSize = true;
+            this.buttonBackupTuner.Enabled = false;
+            this.buttonBackupTuner.Location = new System.Drawing.Point(4, 93);
+            this.buttonBackupTuner.Name = "buttonBackupTuner";
+            this.buttonBackupTuner.Size = new System.Drawing.Size(81, 23);
+            this.buttonBackupTuner.TabIndex = 5;
+            this.buttonBackupTuner.Text = "Backup...";
+            this.buttonBackupTuner.UseVisualStyleBackColor = true;
+            this.buttonBackupTuner.Click += new System.EventHandler(this.buttonBackupTuner_Click);
+            // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 29);
+            this.label2.Location = new System.Drawing.Point(1, 29);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(56, 13);
+            this.label2.Size = new System.Drawing.Size(29, 13);
             this.label2.TabIndex = 0;
-            this.label2.Text = "Tuner port";
+            this.label2.Text = "Port:";
             // 
-            // buttonDecimate
+            // buttonSegmentToTuner
             // 
-            this.buttonDecimate.Enabled = false;
-            this.buttonDecimate.Location = new System.Drawing.Point(13, 100);
-            this.buttonDecimate.Name = "buttonDecimate";
-            this.buttonDecimate.Size = new System.Drawing.Size(75, 23);
-            this.buttonDecimate.TabIndex = 3;
-            this.buttonDecimate.Text = "To MFJ998";
-            this.buttonDecimate.UseVisualStyleBackColor = true;
-            this.buttonDecimate.Click += new System.EventHandler(this.buttonDecimate_Click);
+            this.buttonSegmentToTuner.AutoSize = true;
+            this.buttonSegmentToTuner.Enabled = false;
+            this.buttonSegmentToTuner.Location = new System.Drawing.Point(4, 63);
+            this.buttonSegmentToTuner.Name = "buttonSegmentToTuner";
+            this.buttonSegmentToTuner.Size = new System.Drawing.Size(98, 23);
+            this.buttonSegmentToTuner.TabIndex = 3;
+            this.buttonSegmentToTuner.Text = "Segment to tuner";
+            this.buttonSegmentToTuner.UseVisualStyleBackColor = true;
+            this.buttonSegmentToTuner.Click += new System.EventHandler(this.buttonSegmentToTuner_Click);
             // 
             // comboBoxTunerPorts
             // 
             this.comboBoxTunerPorts.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxTunerPorts.FormattingEnabled = true;
-            this.comboBoxTunerPorts.Location = new System.Drawing.Point(94, 26);
+            this.comboBoxTunerPorts.Location = new System.Drawing.Point(31, 26);
             this.comboBoxTunerPorts.Name = "comboBoxTunerPorts";
             this.comboBoxTunerPorts.Size = new System.Drawing.Size(99, 21);
             this.comboBoxTunerPorts.TabIndex = 1;
@@ -685,23 +718,25 @@
             // 
             // buttonClearEEPROM
             // 
+            this.buttonClearEEPROM.AutoSize = true;
             this.buttonClearEEPROM.Enabled = false;
-            this.buttonClearEEPROM.Location = new System.Drawing.Point(9, 62);
+            this.buttonClearEEPROM.Location = new System.Drawing.Point(136, 26);
             this.buttonClearEEPROM.Name = "buttonClearEEPROM";
-            this.buttonClearEEPROM.Size = new System.Drawing.Size(109, 23);
+            this.buttonClearEEPROM.Size = new System.Drawing.Size(66, 23);
             this.buttonClearEEPROM.TabIndex = 2;
-            this.buttonClearEEPROM.Text = "Clear tuner memory";
+            this.buttonClearEEPROM.Text = "Clr presets";
             this.buttonClearEEPROM.UseVisualStyleBackColor = true;
             this.buttonClearEEPROM.Click += new System.EventHandler(this.buttonClearEEPROM_Click);
             // 
             // buttonDump
             // 
+            this.buttonDump.AutoSize = true;
             this.buttonDump.Enabled = false;
-            this.buttonDump.Location = new System.Drawing.Point(122, 100);
+            this.buttonDump.Location = new System.Drawing.Point(121, 63);
             this.buttonDump.Name = "buttonDump";
-            this.buttonDump.Size = new System.Drawing.Size(75, 23);
+            this.buttonDump.Size = new System.Drawing.Size(81, 23);
             this.buttonDump.TabIndex = 4;
-            this.buttonDump.Text = "Dump Index";
+            this.buttonDump.Text = "Dump current";
             this.buttonDump.UseVisualStyleBackColor = true;
             this.buttonDump.Click += new System.EventHandler(this.buttonDump_Click);
             // 
@@ -800,6 +835,24 @@
             this.textBoxGatewayPort.Size = new System.Drawing.Size(310, 264);
             this.textBoxGatewayPort.TabIndex = 0;
             // 
+            // labelRestoreState
+            // 
+            this.labelRestoreState.AutoSize = true;
+            this.labelRestoreState.Location = new System.Drawing.Point(1, 124);
+            this.labelRestoreState.Name = "labelRestoreState";
+            this.labelRestoreState.Size = new System.Drawing.Size(72, 13);
+            this.labelRestoreState.TabIndex = 7;
+            this.labelRestoreState.Text = "Restore State";
+            // 
+            // labelCpos
+            // 
+            this.labelCpos.AutoSize = true;
+            this.labelCpos.Location = new System.Drawing.Point(165, 198);
+            this.labelCpos.Name = "labelCpos";
+            this.labelCpos.Size = new System.Drawing.Size(31, 13);
+            this.labelCpos.TabIndex = 23;
+            this.labelCpos.Text = "cPos";
+            // 
             // DesktopForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -852,7 +905,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.NumericUpDown numericUpDownDecimate;
-        private System.Windows.Forms.Button buttonDecimate;
+        private System.Windows.Forms.Button buttonSegmentToTuner;
         private System.Windows.Forms.ComboBox comboBoxTunerPorts;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
@@ -896,6 +949,10 @@
         private System.Windows.Forms.TextBox textBoxGatewayPort;
         private System.Windows.Forms.Button buttonRestart;
         private System.Windows.Forms.ComboBox comboBoxZ0;
+        private System.Windows.Forms.Button buttonRestoreTuner;
+        private System.Windows.Forms.Button buttonBackupTuner;
+        private System.Windows.Forms.Label labelRestoreState;
+        private System.Windows.Forms.Label labelCpos;
     }
 }
 
