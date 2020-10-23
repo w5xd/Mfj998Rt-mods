@@ -49,6 +49,7 @@
             this.numericUpDownFmax = new System.Windows.Forms.NumericUpDown();
             this.numericUpDownFmin = new System.Windows.Forms.NumericUpDown();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.labelCpos = new System.Windows.Forms.Label();
             this.buttonRestart = new System.Windows.Forms.Button();
             this.buttonSetEEPROM = new System.Windows.Forms.Button();
             this.labelLnH = new System.Windows.Forms.Label();
@@ -77,6 +78,7 @@
             this.label7 = new System.Windows.Forms.Label();
             this.labelSwr = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.labelRestoreState = new System.Windows.Forms.Label();
             this.buttonRestoreTuner = new System.Windows.Forms.Button();
             this.buttonBackupTuner = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
@@ -90,8 +92,6 @@
             this.splitContainerLogs = new System.Windows.Forms.SplitContainer();
             this.textBoxLocalPort = new System.Windows.Forms.TextBox();
             this.textBoxGatewayPort = new System.Windows.Forms.TextBox();
-            this.labelRestoreState = new System.Windows.Forms.Label();
-            this.labelCpos = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.chart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSmoother)).BeginInit();
             this.panel1.SuspendLayout();
@@ -119,8 +119,15 @@
             // 
             // chart
             // 
+            chartArea1.AxisX.MajorGrid.Interval = 0D;
+            chartArea1.AxisX.MinorTickMark.Enabled = true;
+            chartArea1.AxisX.MinorTickMark.LineColor = System.Drawing.Color.Brown;
             chartArea1.Name = "ChartArea1";
+            chartArea2.AxisX.MinorTickMark.Enabled = true;
+            chartArea2.AxisX.MinorTickMark.LineColor = System.Drawing.Color.Brown;
             chartArea2.Name = "ChartAreaL";
+            chartArea3.AxisX.MinorTickMark.Enabled = true;
+            chartArea3.AxisX.MinorTickMark.LineColor = System.Drawing.Color.Brown;
             chartArea3.Name = "ChartAreaC";
             this.chart.ChartAreas.Add(chartArea1);
             this.chart.ChartAreas.Add(chartArea2);
@@ -319,6 +326,15 @@
             this.groupBox2.TabIndex = 11;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Tuner on radio link";
+            // 
+            // labelCpos
+            // 
+            this.labelCpos.AutoSize = true;
+            this.labelCpos.Location = new System.Drawing.Point(165, 198);
+            this.labelCpos.Name = "labelCpos";
+            this.labelCpos.Size = new System.Drawing.Size(31, 13);
+            this.labelCpos.TabIndex = 23;
+            this.labelCpos.Text = "cPos";
             // 
             // buttonRestart
             // 
@@ -660,6 +676,15 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Tuner on serial";
             // 
+            // labelRestoreState
+            // 
+            this.labelRestoreState.AutoSize = true;
+            this.labelRestoreState.Location = new System.Drawing.Point(1, 124);
+            this.labelRestoreState.Name = "labelRestoreState";
+            this.labelRestoreState.Size = new System.Drawing.Size(72, 13);
+            this.labelRestoreState.TabIndex = 7;
+            this.labelRestoreState.Text = "Restore State";
+            // 
             // buttonRestoreTuner
             // 
             this.buttonRestoreTuner.AutoSize = true;
@@ -834,24 +859,6 @@
             this.textBoxGatewayPort.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.textBoxGatewayPort.Size = new System.Drawing.Size(310, 264);
             this.textBoxGatewayPort.TabIndex = 0;
-            // 
-            // labelRestoreState
-            // 
-            this.labelRestoreState.AutoSize = true;
-            this.labelRestoreState.Location = new System.Drawing.Point(1, 124);
-            this.labelRestoreState.Name = "labelRestoreState";
-            this.labelRestoreState.Size = new System.Drawing.Size(72, 13);
-            this.labelRestoreState.TabIndex = 7;
-            this.labelRestoreState.Text = "Restore State";
-            // 
-            // labelCpos
-            // 
-            this.labelCpos.AutoSize = true;
-            this.labelCpos.Location = new System.Drawing.Point(165, 198);
-            this.labelCpos.Name = "labelCpos";
-            this.labelCpos.Size = new System.Drawing.Size(31, 13);
-            this.labelCpos.TabIndex = 23;
-            this.labelCpos.Text = "cPos";
             // 
             // DesktopForm
             // 

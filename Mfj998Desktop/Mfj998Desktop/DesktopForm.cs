@@ -70,7 +70,7 @@ namespace Mfj998Desktop
                     prevKhz = nearest100Khz;
                     double pos = nearest100Khz;
                     pos /= 10.0;
-                    var cl = new System.Windows.Forms.DataVisualization.Charting.CustomLabel(pos - span, pos + span,
+                    var cl = new System.Windows.Forms.DataVisualization.Charting.CustomLabel(pos - span/2, pos + span/2,
                         String.Format("{0}Khz", nearest100Khz * 100),
                         0, System.Windows.Forms.DataVisualization.Charting.LabelMarkStyle.Box);
                     chart.ChartAreas[0].AxisX.CustomLabels.Add(cl);
@@ -79,6 +79,14 @@ namespace Mfj998Desktop
                 }
                 fLabelApproX += span;
             }
+            double majorTickInterval = range > 2 ? 1 : 0.1;
+            double minorTickInterval = range > 2 ? 0.1 : 0.02;
+            chart.ChartAreas[0].AxisX.MajorGrid.Interval = majorTickInterval;
+            chart.ChartAreas[1].AxisX.MajorGrid.Interval = majorTickInterval;
+            chart.ChartAreas[2].AxisX.MajorGrid.Interval = majorTickInterval;
+            chart.ChartAreas[0].AxisX.MinorTickMark.Interval = minorTickInterval;
+            chart.ChartAreas[1].AxisX.MinorTickMark.Interval = minorTickInterval;
+            chart.ChartAreas[2].AxisX.MinorTickMark.Interval = minorTickInterval;
         }
 
         private double Z0 = 50; // ohms
