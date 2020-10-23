@@ -261,6 +261,19 @@ namespace Mfj998Desktop
                     labelTelemetry.Text = toPrint;
                     if (!String.IsNullOrEmpty(toPrint))
                         textBoxGatewayPort.AppendText(toPrint + "\r\n");
+                    var split = toPrint.Split(' ');
+                    foreach (var sp1 in split)
+                    {
+                        if (sp1.StartsWith("N="))
+                        {
+                            try
+                            {
+                                if (Int32.Parse(sp1.Substring(2)) != numericUpDownNodeId.Value)
+                                    return;
+                            }
+                            catch (System.Exception) { }
+                        }
+                    }
                     int xidx = toPrint.IndexOf("X:");
                     if (xidx > 0)
                     {
@@ -385,6 +398,8 @@ namespace Mfj998Desktop
                     this.BeginInvoke(new Action(EnableNodeIdChange));
                 };
                 timerChangeNodeId.Enabled = true;
+                numericUpDownStop.Value = numericUpDownStop.Minimum;
+                numericUpDownTrigger.Value = numericUpDownTrigger.Maximum;
             }
         }
 
