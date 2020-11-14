@@ -502,6 +502,7 @@ protected:
     long startOfTunePower;
     uint16_t triggerSearchSwr;
     uint16_t stopSearchSwr;
+    bool activeNow;
 };
 
 class SwrSearch { // class to manage searching through L/C for good SWR
@@ -703,7 +704,7 @@ void setup()
 #endif
 
     Serial.begin(38400);
-    Serial.println(F("MFJ998 by W5XD (rev02)"));
+    Serial.println(F("MFJ998 by W5XD (rev03)"));
 
     Serial.print(F("Radio: Node "));
     Serial.print(radioConfiguration.NodeId(), DEC);
@@ -1893,6 +1894,11 @@ bool SwrSearch::findMinSwr(Relays::CapRelayState capState, // returns true on fo
 
 bool SwrSearch::loop(unsigned long now)
 {
+#if SERIAL_DEBUG_SWR_SEARCH > 0
+    static unsigned long lastDebugMsg;
+    static const int EXIT_MSG_INTERVAL_MSEC = 333;
+#endif
+
     if (bridge.TimeToSearch(now))
     {   // we're here because there is power applied to the tuner
         // and the SWR is above the trigger-to-search.
@@ -1900,10 +1906,18 @@ bool SwrSearch::loop(unsigned long now)
         static const uint16_t FREQ_DELTA_FRACTION_PWR = 5;
         static LCsavedSettings::TableEntry lastTableEntrySearched;
         static uint16_t freqRawLastSearched;
-
         auto freqRaw = freqOver4.getFreqRaw();
         if (freqRaw == 0)
+        {
+#if SERIAL_DEBUG_SWR_SEARCH > 0
+            if (now - lastDebugMsg >= EXIT_MSG_INTERVAL_MSEC)
+            {
+                lastDebugMsg = now;
+                Serial.println("Exit cuz freqRaw == 0");
+            }
+#endif
             return false; 
+        }
 
         LCsavedSettings::IndexEntry ie; LCsavedSettings::TableEntry te;
         auto indexIdx = savedLCsettings.lookup(freqRaw, ie, te);
@@ -1913,7 +1927,16 @@ bool SwrSearch::loop(unsigned long now)
         if (((freqRaw >= freqRawLastSearched - lastTunedRange) &&
             (freqRaw <= freqRawLastSearched + lastTunedRange)) &&
                 te == lastTableEntrySearched)
+        {
+#if SERIAL_DEBUG_SWR_SEARCH > 0
+            if (now - lastDebugMsg >= EXIT_MSG_INTERVAL_MSEC)
+            {
+                lastDebugMsg = now;
+                Serial.println("Exit cuz tuned up at this freq");
+            }
+#endif
             return false;
+        }
         // Power down and back up, or QSY to get out of this loop
 
         // pull LC from table lookup
@@ -2038,6 +2061,16 @@ bool SwrSearch::loop(unsigned long now)
                 measuredSwr = nowSwr;
             }
         }
+#endif
+    }
+    else
+    {
+#if SERIAL_DEBUG_SWR_SEARCH > 0
+            if (now - lastDebugMsg >= EXIT_MSG_INTERVAL_MSEC)
+            {
+                lastDebugMsg = now;
+                Serial.println("Exit cuz bridge not ready");
+            }
 #endif
     }
     return false;
@@ -2284,10 +2317,11 @@ bool ForwardReflectedVoltage::loop(unsigned long now)
             Serial.println(F(" search"));
         }
 #endif
+        activeNow = f >= MIN_FWD_TO_ENABLE_SEARCH;
         lastReadMsec = now;
     }
     // never prevent sleep cuz were always reading some noise
-    return false;
+    return activeNow;
 }
 
 void ForwardReflectedVoltage::acquirePowerNow(uint16_t &f, uint16_t &r) const
