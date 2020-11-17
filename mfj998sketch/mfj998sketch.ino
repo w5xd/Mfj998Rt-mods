@@ -2303,9 +2303,10 @@ bool ForwardReflectedVoltage::loop(unsigned long now)
 #if SERIAL_DEBUG
         auto prevStartOfTunePower = startOfTunePower;
 #endif
-        if (f > MAX_FWD_REF_DURING_SWITCHING << HISTORY_PWR )
+        bool belowMin = f < MIN_FWD_TO_ENABLE_SEARCH << HISTORY_PWR;
+        if (f >= MAX_FWD_REF_DURING_SWITCHING << HISTORY_PWR )
             startOfTunePower = 0;
-        else if (f < MIN_FWD_TO_ENABLE_SEARCH << HISTORY_PWR)
+        else if (belowMin)
             startOfTunePower = 0;
         else if (startOfTunePower == 0)
             startOfTunePower = now;
@@ -2317,7 +2318,7 @@ bool ForwardReflectedVoltage::loop(unsigned long now)
             Serial.println(F(" search"));
         }
 #endif
-        activeNow = f >= MIN_FWD_TO_ENABLE_SEARCH;
+        activeNow = !belowMin;
         lastReadMsec = now;
     }
     // never prevent sleep cuz were always reading some noise
