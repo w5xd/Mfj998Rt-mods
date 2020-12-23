@@ -670,6 +670,21 @@ namespace {
     void OnModeButton(uint8_t);
 }
 
+static int printStatusMsec = 1000;
+static void printStatus()
+{
+    Serial.println(F("\r\n\r\nMFJ998 by W5XD (rev4)"));
+    Serial.print(F("Radio: Node "));
+    Serial.print(radioConfiguration.NodeId(), DEC);
+    Serial.print(F(" on network "));
+    Serial.print(radioConfiguration.NetworkId(), DEC);
+    Serial.print(F(" frequency "));
+    Serial.print(radioConfiguration.FrequencyBandId(), DEC);
+    Serial.print(". Radio on ");
+    Serial.print(radio.getFrequency() / 1000);
+    Serial.println(" KHz");
+}
+
 // setup() ******************************************************************************
 void setup() 
 {   // FIRST put the various SPI slave selects in their correct state ASAP
@@ -702,16 +717,7 @@ void setup()
     extenderLcd.begin(LCD_WIDTH,2);
     extenderLcd.print(F("MFJ998 by W5XD"));
 #endif
-
     Serial.begin(38400);
-    Serial.println(F("MFJ998 by W5XD (rev03)"));
-
-    Serial.print(F("Radio: Node "));
-    Serial.print(radioConfiguration.NodeId(), DEC);
-    Serial.print(F(" on network "));
-    Serial.print(radioConfiguration.NetworkId(), DEC);
-    Serial.print(F(" frequency "));
-    Serial.println(radioConfiguration.FrequencyBandId(), DEC);
 
 #if SERIAL_DEBUG > 0
     const char *key = radioConfiguration.EncryptionKey();
@@ -1067,6 +1073,11 @@ void loop()
 {
     static const int SHORTEST_STAYWOKEN_MSEC = 100;
     auto now = millis();
+    if (printStatusMsec > 0 && now >= printStatusMsec)
+    {
+        printStatusMsec = 0;
+        printStatus();
+    }
     bool canSleep = sleepEnabled && (now > InitialAwakeTime);
 
     // at wakeup time, these are in priority order
@@ -1414,6 +1425,10 @@ void loop()
                     }
                     break;
 #endif
+                case 'Q':
+                    printStatus();
+                    break;
+
                 default:
                     break;
                 }
