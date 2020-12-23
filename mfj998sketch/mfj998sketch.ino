@@ -670,6 +670,21 @@ namespace {
     void OnModeButton(uint8_t);
 }
 
+static int printStatusMsec = 1000;
+static void printStatus()
+{
+    Serial.println(F("\r\n\r\nMFJ998 by W5XD (rev4)"));
+    Serial.print(F("Radio: Node "));
+    Serial.print(radioConfiguration.NodeId(), DEC);
+    Serial.print(F(" on network "));
+    Serial.print(radioConfiguration.NetworkId(), DEC);
+    Serial.print(F(" frequency "));
+    Serial.print(radioConfiguration.FrequencyBandId(), DEC);
+    Serial.print(". Radio on ");
+    Serial.print(radio.getFrequency() / 1000);
+    Serial.println(" KHz");
+}
+
 // setup() ******************************************************************************
 void setup() 
 {   // FIRST put the various SPI slave selects in their correct state ASAP
@@ -702,16 +717,7 @@ void setup()
     extenderLcd.begin(LCD_WIDTH,2);
     extenderLcd.print(F("MFJ998 by W5XD"));
 #endif
-
     Serial.begin(38400);
-    Serial.println(F("MFJ998 by W5XD (rev03)"));
-
-    Serial.print(F("Radio: Node "));
-    Serial.print(radioConfiguration.NodeId(), DEC);
-    Serial.print(F(" on network "));
-    Serial.print(radioConfiguration.NetworkId(), DEC);
-    Serial.print(F(" frequency "));
-    Serial.println(radioConfiguration.FrequencyBandId(), DEC);
 
 #if SERIAL_DEBUG > 0
     const char *key = radioConfiguration.EncryptionKey();
@@ -1067,6 +1073,11 @@ void loop()
 {
     static const int SHORTEST_STAYWOKEN_MSEC = 100;
     auto now = millis();
+    if (printStatusMsec > 0 && now >= printStatusMsec)
+    {
+        printStatusMsec = 0;
+        printStatus();
+    }
     bool canSleep = sleepEnabled && (now > InitialAwakeTime);
 
     // at wakeup time, these are in priority order
@@ -1414,6 +1425,10 @@ void loop()
                     }
                     break;
 #endif
+                case 'Q':
+                    printStatus();
+                    break;
+
                 default:
                     break;
                 }
@@ -2303,9 +2318,10 @@ bool ForwardReflectedVoltage::loop(unsigned long now)
 #if SERIAL_DEBUG
         auto prevStartOfTunePower = startOfTunePower;
 #endif
-        if (f > MAX_FWD_REF_DURING_SWITCHING << HISTORY_PWR )
+        bool belowMin = f < MIN_FWD_TO_ENABLE_SEARCH << HISTORY_PWR;
+        if (f >= MAX_FWD_REF_DURING_SWITCHING << HISTORY_PWR )
             startOfTunePower = 0;
-        else if (f < MIN_FWD_TO_ENABLE_SEARCH << HISTORY_PWR)
+        else if (belowMin)
             startOfTunePower = 0;
         else if (startOfTunePower == 0)
             startOfTunePower = now;
@@ -2317,7 +2333,7 @@ bool ForwardReflectedVoltage::loop(unsigned long now)
             Serial.println(F(" search"));
         }
 #endif
-        activeNow = f >= MIN_FWD_TO_ENABLE_SEARCH;
+        activeNow = !belowMin;
         lastReadMsec = now;
     }
     // never prevent sleep cuz were always reading some noise
