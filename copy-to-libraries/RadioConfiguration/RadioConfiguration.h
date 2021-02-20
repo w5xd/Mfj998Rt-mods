@@ -149,6 +149,43 @@ public:
         return false;
     }
 
+    void printEncryptionKey(Print &p)
+    {
+        EncryptionKey();
+        if (!encrypted())
+            return;
+        bool isPrint = true;
+        for (int i = 0; i < ENCRYPT_KEY_LENGTH; i++)
+        {
+            if (!isPrintable(m_EncryptionKey[i]))
+            {
+                isPrint = false;
+                break;
+            }
+        }
+        if (isPrint)
+            for (int i = 0; i < ENCRYPT_KEY_LENGTH; i++)
+                p.print(m_EncryptionKey[i]);
+        else
+        {
+            p.print("0x");
+            for (int i = 0; i < ENCRYPT_KEY_LENGTH; i++)
+            {
+                unsigned char low = m_EncryptionKey[i] & 0xF;
+                unsigned char high = m_EncryptionKey[i] & 0xF0; high >>= 4;
+                if (high < 10)
+                    p.print(static_cast<char>('0' + high));
+                else
+                    p.print(static_cast<char>('a' + high - 10));
+                if (low < 10)
+                    p.print(static_cast<char>('0' + low));
+                else
+                    p.print(static_cast<char>('a' + low - 10));
+            }
+        }
+
+    }
+
     // return pointer to character after white space, if any
     static const char *SkipWhiteSpace(const char *p)
     {
