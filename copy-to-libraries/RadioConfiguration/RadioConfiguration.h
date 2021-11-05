@@ -207,9 +207,7 @@ public:
     }
 
     static unsigned TotalEpromUsed() { return TOTAL_EEPROM_USED;}
-
-protected:
-    enum {
+    enum EepromAddresses {
         NODEID_POSITION = 0,
         NETWORKID_POSITION = NODEID_POSITION + sizeof(uint8_t),
         FREQUENCYBAND_POSITION = NETWORKID_POSITION + sizeof(uint8_t),
@@ -217,6 +215,8 @@ protected:
         FREQUENCYKHZ_POSITION = ENCRYPTION_KEY_POSITION + ENCRYPT_KEY_LENGTH,
         TOTAL_EEPROM_USED = FREQUENCYKHZ_POSITION + sizeof(uint32_t)
     };
+
+protected:
 
     const uint16_t m_EEpromOffset; // offset into the EEPROM for the radio configuration
     char m_EncryptionKey[ENCRYPT_KEY_LENGTH];
