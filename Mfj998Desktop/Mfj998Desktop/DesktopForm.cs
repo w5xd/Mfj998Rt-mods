@@ -223,20 +223,25 @@ namespace Mfj998Desktop
 
         private void ReadLocalNow()
         {
-            String s = m_mfj998Port.ReadExisting();
-            mfj998Incoming += s;
-            int idx;
-            char[] nl = { '\r', '\n' };
-            while (0 <= (idx = mfj998Incoming.IndexOfAny(nl)))
+            for (;;)
             {
-                string toPrint = null;
-                if (idx > 0)
-                    toPrint = mfj998Incoming.Substring(0, idx);
-                mfj998Incoming = mfj998Incoming.Substring(idx + 1);
-                if (!String.IsNullOrEmpty(toPrint))
+                String s = m_mfj998Port.ReadExisting();
+                if (!s.Any())
+                    return;
+                mfj998Incoming += s;
+                int idx;
+                char[] nl = { '\r', '\n' };
+                while (0 <= (idx = mfj998Incoming.IndexOfAny(nl)))
                 {
-                    textBoxLocalPort.AppendText(toPrint + "\r\n");
-                    onLocalTunerString?.Invoke(toPrint);
+                    string toPrint = null;
+                    if (idx > 0)
+                        toPrint = mfj998Incoming.Substring(0, idx);
+                    mfj998Incoming = mfj998Incoming.Substring(idx + 1);
+                    if (!String.IsNullOrEmpty(toPrint))
+                    {
+                        textBoxLocalPort.AppendText(toPrint + "\r\n");
+                        onLocalTunerString?.Invoke(toPrint);
+                    }
                 }
             }
         }
