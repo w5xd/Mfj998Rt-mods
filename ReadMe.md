@@ -76,7 +76,7 @@ but its primary purpose is to be controlled from the shack PC. <a href='Mfj998De
 <h2>Construction</h2>
 The surface mount components, minus the RFM69 transceiver, are
 installed first. Hints for reflow soldering: the gerber file solder paste mask thinks you're going to reflow
- solder the RFM69, but it cannot be in the oven. I put a tab of masking tape over its holes in my
+ solder the RFM69, but it's probably safer to hand solder. Its your choice. I put a tab of masking tape over its holes in my
 solder paste mask. Also, the Revision 2 solder paste mask omits the mask holes necessary for C1, C2, and C3, so I hand-applied more paste after pulling the mask off.
 <p align='center'><img width='50%' src='construction-01.jpg' alt='construction-01.jpg'/></p>
 Install <b><i>only</i></b> the headers at the PIC position
