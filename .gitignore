@@ -1,5 +1,7 @@
-~*
+packages/
+*~
 mfj998sketch.cpp
 TestHarnessSketch.cpp
 GatewaySketch.cpp
 EP*/
+.vs

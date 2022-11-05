@@ -810,6 +810,7 @@
             // splitContainerMain.Panel1
             // 
             this.splitContainerMain.Panel1.Controls.Add(this.splitContainerLogs);
+            this.splitContainerMain.Panel1MinSize = 310;
             // 
             // splitContainerMain.Panel2
             // 
