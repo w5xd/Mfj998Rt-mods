@@ -64,6 +64,10 @@ namespace { // constants
     const int FREQ_CALI_OFFSET = 0; // beyond end of RadioConfiguration
     const int TRIGGER_SWR = FREQ_CALI_OFFSET + 2;
     const int STOP_SEARCH_SWR = TRIGGER_SWR + 2;
+    const int MAX_SWITCHING_V_ADC = STOP_SEARCH_SWR + 2;
+    const int MIN_SEARCH_V_ADC = MAX_SWITCHING_V_ADC + 2;
+    const int EEPROM_MFJ998_USED = MIN_SEARCH_V_ADC + 2;
+
 
 }
 

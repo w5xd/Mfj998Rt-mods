@@ -312,17 +312,17 @@ namespace Mfj998Desktop
                         {
                             int fwd = Int32.Parse(toPrint.Substring(fwdidx + 2, fwdend - fwdidx - 2));
                             int refl = Int32.Parse(toPrint.Substring(refidx + 2, refend - refidx - 2));
-                            const double CALI = 2443.0;
+                            // fwd and refl are in units of ADC counts time 8 (because 8 are summed)
+                            double CALI = 8 * (double)numericUpDownCali.Value;
                             double fPower = 100.0 * (fwd * fwd) / (CALI * CALI);
                             double rPower = 100.0 * (refl * refl) / (CALI * CALI);
-                            labelFwd.Text = String.Format("{0:0.0}", fPower);
-                            labelRef.Text = String.Format("{0:0.0}", rPower);
+                            labelFwd.Text = String.Format("{0:0.0}W ({1:0.0})", fPower, (fwd / 8.0));
+                            labelRef.Text = String.Format("{0:0.0}W ({1:0.0})", rPower, (refl / 8.0));
+
                             if (fwd != 0)
                             {
                                 if (refl == 0)
-                                {
                                     labelSwr.Text = "1.0";
-                                }
                                 else if (refl >= fwd)
                                     labelSwr.Text = "~";
                                 else
@@ -336,9 +336,11 @@ namespace Mfj998Desktop
                     }
                     ToLabel(toPrint, "C:", numericUpDownC, (int i) => { labelCpf.Text = String.Format("{0:0.} pF", 15.5 * i); lastTunerC = i; return i; });
                     ToLabel(toPrint, "L:", numericUpDownL, (int i) => { labelLnH.Text = String.Format("{0:0.0} nH", .095 * i); lastTunerL = i; return i; });
-                    ToLabel(toPrint, "P:", numericUpDownP, (int i) => { labelCpos.Text = (i == 2) ? "Load" : "Gen";  lastTunerP = i; return i; });
+                    ToLabel(toPrint, "P:", numericUpDownP, (int i) => { labelCpos.Text = (i == 1) ? "Load" : ((i == 2) ? "Gen" : "NO");  lastTunerP = i; return i; });
                     ToSwrSetting(toPrint, "T:", numericUpDownTrigger);
                     ToSwrSetting(toPrint, "S:", numericUpDownStop);
+                    ToLabel(toPrint, "MW:", numericUpDownMaxSwitch, (int i) => { return i; });
+                    ToLabel(toPrint, "MS:", numericUpDownMinSearch, (int i) => { return i; });
                 }
             }
         }
@@ -355,7 +357,8 @@ namespace Mfj998Desktop
                 {
                     bool temp = m_ignoreChange;
                     m_ignoreChange = true;
-                    lbl.Value = cui(Int32.Parse(incoming.Substring(fwdidx + 2, fwdend - fwdidx - 2)));
+                    int labelLen = tomatch.Length;
+                    lbl.Value = cui(Int32.Parse(incoming.Substring(fwdidx + labelLen, fwdend - fwdidx - labelLen)));
                     m_ignoreChange = temp;
                 }
             }
@@ -1034,6 +1037,7 @@ namespace Mfj998Desktop
             {
                 string cmd = String.Format("SendMessageToNode {0} SET C={1}", (int)numericUpDownNodeId.Value, (int)numericUpDownC.Value);
                 m_gatewayPort.WriteLine(cmd);
+                labelCpos.Text = "";
             }
         }
         private void numericUpDownL_ValueChanged(object sender, EventArgs e)
@@ -1042,6 +1046,7 @@ namespace Mfj998Desktop
             {
                 string cmd = String.Format("SendMessageToNode {0} SET L={1}", (int)numericUpDownNodeId.Value, (int)numericUpDownL.Value);
                 m_gatewayPort.WriteLine(cmd);
+                labelLnH.Text = "";
             }
         }
         private void numericUpDownP_ValueChanged(object sender, EventArgs e)
@@ -1050,6 +1055,7 @@ namespace Mfj998Desktop
             {
                 string cmd = String.Format("SendMessageToNode {0} SET P={1}", (int)numericUpDownNodeId.Value, (int)numericUpDownP.Value);
                 m_gatewayPort.WriteLine(cmd);
+                labelCpos.Text = "";
             }
         }
         private void numericUpDownTrigger_ValueChanged(object sender, EventArgs e)
@@ -1082,6 +1088,23 @@ namespace Mfj998Desktop
                 presented *= 64;
                 int toTuner = (int)presented;
                 string cmd = String.Format("SendMessageToNode {0} SET SSWR={1}", (int)numericUpDownNodeId.Value, toTuner);
+                m_gatewayPort.WriteLine(cmd);
+            }
+        }
+        private void numericUpDownMaxSwitch_ValueChanged(object sender, EventArgs e)
+        {
+            if (!m_ignoreChange && null != m_gatewayPort && m_gatewayPort.IsOpen)
+            {
+                string cmd = String.Format("SendMessageToNode {0} SET MXSW={1}", (int)numericUpDownNodeId.Value, (int)numericUpDownMaxSwitch.Value);
+                m_gatewayPort.WriteLine(cmd);
+            }
+        }
+
+        private void numericUpDownMinSearch_ValueChanged(object sender, EventArgs e)
+        {
+            if (!m_ignoreChange && null != m_gatewayPort && m_gatewayPort.IsOpen)
+            {
+                string cmd = String.Format("SendMessageToNode {0} SET MNSR={1}", (int)numericUpDownNodeId.Value, (int)numericUpDownMinSearch.Value);
                 m_gatewayPort.WriteLine(cmd);
             }
         }

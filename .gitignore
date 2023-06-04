@@ -1,4 +1,5 @@
 packages/
+*.user
 *~
 mfj998sketch.cpp
 TestHarnessSketch.cpp

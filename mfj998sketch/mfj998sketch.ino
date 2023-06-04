@@ -361,6 +361,16 @@ public:
     void setTelemetryMsec(uint16_t v) { telemetryMsec = v;}
 
     unsigned long getLastTelemetryMsec() const { return lastTelemetryMsec; }
+    void sendFrame(uint16_t toAddress, const void* buffer, uint8_t size, bool requestACK = false, bool sendACK = false)
+    {
+        auto now = millis();
+        long diff = now - lastSendFrame;
+        if (diff < MIN_SEND_FRAME_INTERVAL_MSEC)
+            delay(diff);
+        lastSendFrame = millis();
+        RFM69::sendFrame(toAddress, buffer, size, requestACK, sendACK);
+    }
+    enum {MIN_SEND_FRAME_INTERVAL_MSEC = 50};
 protected:
     unsigned long lastTelemetryMsec;
     size_t write(uint8_t) override;
@@ -371,12 +381,14 @@ protected:
         ** waits for up to one second for the readRSSI value to fall...
         ** which it often (usually) does not.
         ** So here is a custom sendACK that just blasts away immediately. */
-        sendFrame(SENDERID, "", 0, false, true);
+        lastSendFrame = millis();
+        RFM69::sendFrame(SENDERID, "", 0, false, true);
     }
     bool m_initialized;
     char telemetryBuffer[RF69_MAX_DATA_LEN];
     int m_telemetryPos;
     uint16_t telemetryMsec;
+    unsigned long lastSendFrame;
 };
 
 class MeterPWM {
@@ -481,16 +493,21 @@ public:
     bool TimeToSearch(long now);
     bool OkToSwitchRelays();
     void sleep();
-    static bool OkToSwitchRelays(uint16_t f, uint16_t r);
+    bool OkToSwitchRelays(uint16_t f, uint16_t r);
     void setTriggerSwr(uint16_t swr);
     void setStopSearchSwr(uint16_t swr);
     uint16_t StopSearchSwr() const { return stopSearchSwr;}
     uint16_t TriggerSwr() const { return triggerSearchSwr;}
     // return is (SWR-1) * 64 
-    static uint16_t Swr(uint16_t f, uint16_t r); // caller required to check for non-zero f
+    static uint16_t Swr(uint16_t f, uint16_t r); 
     uint16_t Swr(); // only good in loop()
     uint16_t MeasureSwr(uint16_t &f, uint16_t &r);
     enum {HISTORY_PWR = 3, HISTORY_LEN = 1 << HISTORY_PWR, TO_AVERAGE_EXP=5};
+    // These four are Voltage, in raw ADC units (as opposed to HISTORY_LEN added)
+    uint16_t minFwdToEnableSearch() const { return gMIN_FWD_TO_ENABLE_SEARCH; }
+    uint16_t maxFwdRefDuringSwitching() const { return gMAX_FWD_REF_DURING_SWITCHING; }
+    void minFwdToEnableSearch(uint16_t);
+    void maxFwdRefDuringSwitching(uint16_t);
 protected:
     // Model correction for bridge nonlinearity by adding this much to nonzero readings
     enum {DIODE_FORWARD_DROP_MODEL = 41};
@@ -503,6 +520,8 @@ protected:
     uint16_t triggerSearchSwr;
     uint16_t stopSearchSwr;
     bool activeNow;
+    uint16_t gMAX_FWD_REF_DURING_SWITCHING = MAX_FWD_REF_DURING_SWITCHING;
+    uint16_t gMIN_FWD_TO_ENABLE_SEARCH = MIN_FWD_TO_ENABLE_SEARCH;
 };
 
 class SwrSearch { // class to manage searching through L/C for good SWR
@@ -645,6 +664,7 @@ namespace {
     unsigned long InitialAwakeTime;
 
     bool sleepEnabled = true;
+
 #if SERIAL_DEBUG > 0
     volatile bool int0Happened;
 #endif
@@ -668,12 +688,13 @@ namespace {
     void OnCDownButton(uint8_t);
     void OnAntButton(uint8_t);
     void OnModeButton(uint8_t);
+    uint16_t Eeprom328pAddr(uint16_t offset) { return RadioConfiguration::TotalEpromUsed() + offset; }
 }
 
 static int printStatusMsec = 1000;
 static void printStatus()
 {
-    Serial.println(F("\r\n\r\nMFJ998 by W5XD (rev4)"));
+    Serial.println(F("\r\n\r\nMFJ998 by W5XD (rev5)"));
     Serial.print(F("Radio: Node "));
     Serial.print(radioConfiguration.NodeId(), DEC);
     Serial.print(F(" on network "));
@@ -763,7 +784,7 @@ void setup()
 #endif
 
     uint16_t freqCalibration;
-    EEPROM.get(RadioConfiguration::TotalEpromUsed() + FREQ_CALI_OFFSET, freqCalibration);
+    EEPROM.get(Eeprom328pAddr(FREQ_CALI_OFFSET), freqCalibration);
     freqOver4.setCalibration(freqCalibration);
 
     InitialAwakeTime = millis() + INITIAL_AWAKE_MSEC_ON_POWERUP;
@@ -891,6 +912,25 @@ static bool processCommandString(const char *pHost, unsigned short count)
         lPtr = strstr(pHost, " S=");
         if (lPtr)
             sleepEnabled = atoi(lPtr+3) != 0;
+
+        lPtr = strstr(pHost, "MXSW=");
+        if (lPtr)
+        {
+            uint16_t maxSwitch = atoi(lPtr + 5);
+            bridge.maxFwdRefDuringSwitching(maxSwitch);
+#if SERIAL_DEBUG > 0
+            Serial.print(F("MXSW=")); Serial.println(maxSwitch);
+#endif
+        }
+        lPtr = strstr(pHost, "MNSR=");
+        if (lPtr)
+        {
+            uint16_t minSearch = atoi(lPtr + 5);
+            bridge.minFwdToEnableSearch(minSearch);
+#if SERIAL_DEBUG > 0
+            Serial.print(F("MNSR=")); Serial.println(minSearch);
+#endif
+        }
         return true;
     } else if (strncmp(pHost, "GET", 3) == 0)
     {
@@ -1248,7 +1288,7 @@ void loop()
                             result /= displayed;
                             uint16_t calibration = result;
                             freqOver4.setCalibration(calibration);
-                            EEPROM.put(RadioConfiguration::TotalEpromUsed()+FREQ_CALI_OFFSET, calibration);
+                            EEPROM.put(Eeprom328pAddr(FREQ_CALI_OFFSET), calibration);
 
                             Serial.print(F("Calibration = "));
                             Serial.println(calibration, HEX);
@@ -1505,7 +1545,7 @@ namespace {
         sei();
 #endif
 
-#if SERIAL_DEBUG > 0
+#if SERIAL_DEBUG > 1
         if (WakeupLow)
             Serial.println("Did not sleep cuz wakeup");
         if (int0Happened)
@@ -1816,9 +1856,9 @@ namespace {
                     return false;
                 if (!relays.setLindex(lIdx))
                     return false;
-                if (!ForwardReflectedVoltage::OkToSwitchRelays(f,r))
+                if (!bridge.OkToSwitchRelays(f,r))
                     return false;
-                if (f < MIN_FWD_TO_ENABLE_SEARCH)
+                if (f < bridge.minFwdToEnableSearch())
                     return false;
                 relays.transferAndWait();
                 uint16_t swr = bridge.MeasureSwr(f,r);
@@ -1868,7 +1908,7 @@ namespace {
                     break;
             }
         }
-        if ((bestSwr != 0xffff) && ForwardReflectedVoltage::OkToSwitchRelays(f,r))
+        if ((bestSwr != 0xffff) && bridge.OkToSwitchRelays(f,r))
         {
             relays.setCindex(cIdxAtMin);
             relays.setLindex(lIdxAtMin);
@@ -2269,7 +2309,9 @@ void RadioRFM69::sendStatusPacket(uint16_t triggerSwr, uint16_t stopSearchSwr)
 #endif
     print("T:"); print(triggerSwr);
     print(" S:"); print(stopSearchSwr);
- #if SERIAL_DEBUG > 0
+    print(" MW:"); print(bridge.maxFwdRefDuringSwitching());
+    print(" MS:"); print(bridge.minFwdToEnableSearch());
+#if SERIAL_DEBUG > 0
     Serial.println(); 
 #endif
     static const uint16_t GATEWAY_ID = 1;
@@ -2318,8 +2360,8 @@ bool ForwardReflectedVoltage::loop(unsigned long now)
 #if SERIAL_DEBUG
         auto prevStartOfTunePower = startOfTunePower;
 #endif
-        bool belowMin = f < MIN_FWD_TO_ENABLE_SEARCH << HISTORY_PWR;
-        if (f >= MAX_FWD_REF_DURING_SWITCHING << HISTORY_PWR )
+        bool belowMin = f < bridge.minFwdToEnableSearch() << HISTORY_PWR;
+        if (f >= bridge.maxFwdRefDuringSwitching() << HISTORY_PWR )
             startOfTunePower = 0;
         else if (belowMin)
             startOfTunePower = 0;
@@ -2411,7 +2453,7 @@ void ForwardReflectedVoltage::readPowerX8(uint16_t &f, uint16_t &r) const
 
 bool ForwardReflectedVoltage::OkToSwitchRelays(uint16_t f, uint16_t r)
 {  
-    bool ret = (f <= MAX_FWD_REF_DURING_SWITCHING) && (r <= MAX_FWD_REF_DURING_SWITCHING);
+    bool ret = (f <= gMAX_FWD_REF_DURING_SWITCHING) && (r <= gMAX_FWD_REF_DURING_SWITCHING);
 #if SERIAL_DEBUG > 0
     if (!ret)
     {
@@ -2446,19 +2488,25 @@ void ForwardReflectedVoltage::sleep()
 void ForwardReflectedVoltage::setup()
 {
     uint16_t temp;
-    EEPROM.get(RadioConfiguration::TotalEpromUsed() + TRIGGER_SWR, temp);
-    if (temp != 0xffff)
+    EEPROM.get(Eeprom328pAddr(TRIGGER_SWR), temp);
+    if (temp != 0xffffu)
         triggerSearchSwr = temp;
-    EEPROM.get(RadioConfiguration::TotalEpromUsed() + STOP_SEARCH_SWR, temp);
+    EEPROM.get(Eeprom328pAddr(STOP_SEARCH_SWR), temp);
     if (temp < triggerSearchSwr)
         stopSearchSwr = temp;
+    EEPROM.get(Eeprom328pAddr(MAX_SWITCHING_V_ADC), temp);
+    if (temp != 0xffffu)
+        gMAX_FWD_REF_DURING_SWITCHING = temp;
+    EEPROM.get(Eeprom328pAddr(MIN_SEARCH_V_ADC), temp);
+    if (temp != 0xffffu)
+        gMIN_FWD_TO_ENABLE_SEARCH = temp;
 }
 
 void ForwardReflectedVoltage::setTriggerSwr(uint16_t triggerSwr)
 {
     if (triggerSwr >= MIN_TRIGGER_SWR) // don't allow just any setting
     {
-        EEPROM.put(RadioConfiguration::TotalEpromUsed()+TRIGGER_SWR, triggerSwr);
+        EEPROM.put(Eeprom328pAddr(TRIGGER_SWR), triggerSwr);
         triggerSearchSwr = triggerSwr;
     }
 }
@@ -2467,9 +2515,21 @@ void ForwardReflectedVoltage::setStopSearchSwr(uint16_t ss)
 {
     if (ss < triggerSearchSwr)
     {
-        EEPROM.put(RadioConfiguration::TotalEpromUsed()+STOP_SEARCH_SWR, ss);
+        EEPROM.put(Eeprom328pAddr(STOP_SEARCH_SWR), ss);
         stopSearchSwr = ss;
     }
+}
+
+void ForwardReflectedVoltage::minFwdToEnableSearch(uint16_t v)
+{
+    gMIN_FWD_TO_ENABLE_SEARCH = v;
+    EEPROM.put(Eeprom328pAddr(MIN_SEARCH_V_ADC), v);
+}
+
+void ForwardReflectedVoltage::maxFwdRefDuringSwitching(uint16_t v)
+{
+    gMAX_FWD_REF_DURING_SWITCHING = v;
+    EEPROM.put(Eeprom328pAddr(MAX_SWITCHING_V_ADC), v);
 }
 
 // LCsavedSettings**************************************************************
