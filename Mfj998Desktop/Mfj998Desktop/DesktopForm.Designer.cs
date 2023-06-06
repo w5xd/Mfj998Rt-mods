@@ -49,6 +49,14 @@
             this.numericUpDownFmax = new System.Windows.Forms.NumericUpDown();
             this.numericUpDownFmin = new System.Windows.Forms.NumericUpDown();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.numericUpDownCali = new System.Windows.Forms.NumericUpDown();
+            this.label19 = new System.Windows.Forms.Label();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.numericUpDownMinSearch = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDownMaxSwitch = new System.Windows.Forms.NumericUpDown();
+            this.label18 = new System.Windows.Forms.Label();
+            this.label17 = new System.Windows.Forms.Label();
+            this.label16 = new System.Windows.Forms.Label();
             this.labelCpos = new System.Windows.Forms.Label();
             this.buttonRestart = new System.Windows.Forms.Button();
             this.buttonSetEEPROM = new System.Windows.Forms.Button();
@@ -92,20 +100,16 @@
             this.splitContainerLogs = new System.Windows.Forms.SplitContainer();
             this.textBoxLocalPort = new System.Windows.Forms.TextBox();
             this.textBoxGatewayPort = new System.Windows.Forms.TextBox();
-            this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.label16 = new System.Windows.Forms.Label();
-            this.label17 = new System.Windows.Forms.Label();
-            this.label18 = new System.Windows.Forms.Label();
-            this.numericUpDownMaxSwitch = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDownMinSearch = new System.Windows.Forms.NumericUpDown();
-            this.label19 = new System.Windows.Forms.Label();
-            this.numericUpDownCali = new System.Windows.Forms.NumericUpDown();
             ((System.ComponentModel.ISupportInitialize)(this.chart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSmoother)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFmax)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFmin)).BeginInit();
             this.groupBox2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownCali)).BeginInit();
+            this.groupBox4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMinSearch)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMaxSwitch)).BeginInit();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownStop)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownTrigger)).BeginInit();
@@ -123,10 +127,6 @@
             this.splitContainerLogs.Panel1.SuspendLayout();
             this.splitContainerLogs.Panel2.SuspendLayout();
             this.splitContainerLogs.SuspendLayout();
-            this.groupBox4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMaxSwitch)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMinSearch)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownCali)).BeginInit();
             this.SuspendLayout();
             // 
             // chart
@@ -175,7 +175,7 @@
             this.chart.Series.Add(series3);
             this.chart.Series.Add(series4);
             this.chart.Series.Add(series5);
-            this.chart.Size = new System.Drawing.Size(232, 563);
+            this.chart.Size = new System.Drawing.Size(258, 508);
             this.chart.TabIndex = 0;
             this.chart.Text = "R,X";
             // 
@@ -234,7 +234,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(413, 563);
+            this.panel1.Size = new System.Drawing.Size(355, 508);
             this.panel1.TabIndex = 0;
             // 
             // comboBoxZ0
@@ -335,17 +335,115 @@
             this.groupBox2.Controls.Add(this.label5);
             this.groupBox2.Controls.Add(this.label7);
             this.groupBox2.Controls.Add(this.labelSwr);
-            this.groupBox2.Location = new System.Drawing.Point(3, 262);
+            this.groupBox2.Location = new System.Drawing.Point(3, 207);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(345, 298);
             this.groupBox2.TabIndex = 11;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Tuner on radio link";
             // 
+            // numericUpDownCali
+            // 
+            this.numericUpDownCali.Location = new System.Drawing.Point(48, 88);
+            this.numericUpDownCali.Maximum = new decimal(new int[] {
+            8192,
+            0,
+            0,
+            0});
+            this.numericUpDownCali.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDownCali.Name = "numericUpDownCali";
+            this.numericUpDownCali.Size = new System.Drawing.Size(55, 20);
+            this.numericUpDownCali.TabIndex = 26;
+            this.numericUpDownCali.Value = new decimal(new int[] {
+            2443,
+            0,
+            0,
+            0});
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(11, 90);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(25, 13);
+            this.label19.TabIndex = 25;
+            this.label19.Text = "Cal:";
+            // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.numericUpDownMinSearch);
+            this.groupBox4.Controls.Add(this.numericUpDownMaxSwitch);
+            this.groupBox4.Controls.Add(this.label18);
+            this.groupBox4.Controls.Add(this.label17);
+            this.groupBox4.Controls.Add(this.label16);
+            this.groupBox4.Location = new System.Drawing.Point(240, 16);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(72, 147);
+            this.groupBox4.TabIndex = 24;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Pwr CAL";
+            // 
+            // numericUpDownMinSearch
+            // 
+            this.numericUpDownMinSearch.Location = new System.Drawing.Point(10, 87);
+            this.numericUpDownMinSearch.Maximum = new decimal(new int[] {
+            1023,
+            0,
+            0,
+            0});
+            this.numericUpDownMinSearch.Name = "numericUpDownMinSearch";
+            this.numericUpDownMinSearch.Size = new System.Drawing.Size(38, 20);
+            this.numericUpDownMinSearch.TabIndex = 4;
+            this.numericUpDownMinSearch.ValueChanged += new System.EventHandler(this.numericUpDownMinSearch_ValueChanged);
+            // 
+            // numericUpDownMaxSwitch
+            // 
+            this.numericUpDownMaxSwitch.Location = new System.Drawing.Point(9, 39);
+            this.numericUpDownMaxSwitch.Maximum = new decimal(new int[] {
+            1023,
+            0,
+            0,
+            0});
+            this.numericUpDownMaxSwitch.Name = "numericUpDownMaxSwitch";
+            this.numericUpDownMaxSwitch.Size = new System.Drawing.Size(39, 20);
+            this.numericUpDownMaxSwitch.TabIndex = 3;
+            this.numericUpDownMaxSwitch.ValueChanged += new System.EventHandler(this.numericUpDownMaxSwitch_ValueChanged);
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(6, 123);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(54, 13);
+            this.label18.TabIndex = 2;
+            this.label18.Text = "ADC units";
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(7, 71);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(62, 13);
+            this.label17.TabIndex = 1;
+            this.label17.Text = "Min search:";
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(7, 20);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(54, 13);
+            this.label16.TabIndex = 0;
+            this.label16.Text = "Max tune:";
+            // 
             // labelCpos
             // 
             this.labelCpos.AutoSize = true;
-            this.labelCpos.Location = new System.Drawing.Point(193, 198);
+            this.labelCpos.Location = new System.Drawing.Point(190, 175);
             this.labelCpos.Name = "labelCpos";
             this.labelCpos.Size = new System.Drawing.Size(31, 13);
             this.labelCpos.TabIndex = 23;
@@ -353,7 +451,7 @@
             // 
             // buttonRestart
             // 
-            this.buttonRestart.Location = new System.Drawing.Point(128, 58);
+            this.buttonRestart.Location = new System.Drawing.Point(125, 57);
             this.buttonRestart.Name = "buttonRestart";
             this.buttonRestart.Size = new System.Drawing.Size(56, 23);
             this.buttonRestart.TabIndex = 4;
@@ -364,7 +462,7 @@
             // buttonSetEEPROM
             // 
             this.buttonSetEEPROM.Enabled = false;
-            this.buttonSetEEPROM.Location = new System.Drawing.Point(39, 243);
+            this.buttonSetEEPROM.Location = new System.Drawing.Point(48, 230);
             this.buttonSetEEPROM.Name = "buttonSetEEPROM";
             this.buttonSetEEPROM.Size = new System.Drawing.Size(111, 23);
             this.buttonSetEEPROM.TabIndex = 21;
@@ -375,7 +473,7 @@
             // labelLnH
             // 
             this.labelLnH.AutoSize = true;
-            this.labelLnH.Location = new System.Drawing.Point(191, 173);
+            this.labelLnH.Location = new System.Drawing.Point(188, 150);
             this.labelLnH.Name = "labelLnH";
             this.labelLnH.Size = new System.Drawing.Size(21, 13);
             this.labelLnH.TabIndex = 15;
@@ -384,7 +482,7 @@
             // labelCpf
             // 
             this.labelCpf.AutoSize = true;
-            this.labelCpf.Location = new System.Drawing.Point(191, 146);
+            this.labelCpf.Location = new System.Drawing.Point(188, 123);
             this.labelCpf.Name = "labelCpf";
             this.labelCpf.Size = new System.Drawing.Size(19, 13);
             this.labelCpf.TabIndex = 10;
@@ -393,11 +491,11 @@
             // labelFreq
             // 
             this.labelFreq.AutoSize = true;
-            this.labelFreq.Location = new System.Drawing.Point(15, 226);
+            this.labelFreq.Location = new System.Drawing.Point(9, 203);
             this.labelFreq.Name = "labelFreq";
-            this.labelFreq.Size = new System.Drawing.Size(41, 13);
+            this.labelFreq.Size = new System.Drawing.Size(50, 13);
             this.labelFreq.TabIndex = 20;
-            this.labelFreq.Text = "label14";
+            this.labelFreq.Text = "labelFreq";
             // 
             // groupBox3
             // 
@@ -405,9 +503,9 @@
             this.groupBox3.Controls.Add(this.numericUpDownTrigger);
             this.groupBox3.Controls.Add(this.label13);
             this.groupBox3.Controls.Add(this.label12);
-            this.groupBox3.Location = new System.Drawing.Point(231, 192);
+            this.groupBox3.Location = new System.Drawing.Point(232, 169);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(108, 96);
+            this.groupBox3.Size = new System.Drawing.Size(108, 88);
             this.groupBox3.TabIndex = 5;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "SWR";
@@ -511,7 +609,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(9, 59);
+            this.label11.Location = new System.Drawing.Point(6, 58);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(47, 13);
             this.label11.TabIndex = 2;
@@ -519,7 +617,7 @@
             // 
             // numericUpDownNodeId
             // 
-            this.numericUpDownNodeId.Location = new System.Drawing.Point(65, 57);
+            this.numericUpDownNodeId.Location = new System.Drawing.Point(62, 56);
             this.numericUpDownNodeId.Maximum = new decimal(new int[] {
             10,
             0,
@@ -551,7 +649,7 @@
             // 
             // numericUpDownP
             // 
-            this.numericUpDownP.Location = new System.Drawing.Point(142, 194);
+            this.numericUpDownP.Location = new System.Drawing.Point(139, 171);
             this.numericUpDownP.Maximum = new decimal(new int[] {
             2,
             0,
@@ -570,7 +668,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(6, 146);
+            this.label4.Location = new System.Drawing.Point(3, 123);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(32, 13);
             this.label4.TabIndex = 6;
@@ -578,7 +676,7 @@
             // 
             // numericUpDownL
             // 
-            this.numericUpDownL.Location = new System.Drawing.Point(142, 169);
+            this.numericUpDownL.Location = new System.Drawing.Point(139, 146);
             this.numericUpDownL.Maximum = new decimal(new int[] {
             257,
             0,
@@ -592,7 +690,7 @@
             // labelFwd
             // 
             this.labelFwd.AutoSize = true;
-            this.labelFwd.Location = new System.Drawing.Point(40, 146);
+            this.labelFwd.Location = new System.Drawing.Point(37, 123);
             this.labelFwd.Name = "labelFwd";
             this.labelFwd.Size = new System.Drawing.Size(49, 13);
             this.labelFwd.TabIndex = 7;
@@ -600,7 +698,7 @@
             // 
             // numericUpDownC
             // 
-            this.numericUpDownC.Location = new System.Drawing.Point(142, 142);
+            this.numericUpDownC.Location = new System.Drawing.Point(139, 119);
             this.numericUpDownC.Maximum = new decimal(new int[] {
             255,
             0,
@@ -614,7 +712,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(8, 173);
+            this.label6.Location = new System.Drawing.Point(5, 150);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(28, 13);
             this.label6.TabIndex = 11;
@@ -623,7 +721,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(124, 198);
+            this.label9.Location = new System.Drawing.Point(121, 175);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(14, 13);
             this.label9.TabIndex = 18;
@@ -632,7 +730,7 @@
             // labelRef
             // 
             this.labelRef.AutoSize = true;
-            this.labelRef.Location = new System.Drawing.Point(40, 173);
+            this.labelRef.Location = new System.Drawing.Point(37, 150);
             this.labelRef.Name = "labelRef";
             this.labelRef.Size = new System.Drawing.Size(46, 13);
             this.labelRef.TabIndex = 12;
@@ -641,7 +739,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(123, 173);
+            this.label8.Location = new System.Drawing.Point(120, 150);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(13, 13);
             this.label8.TabIndex = 13;
@@ -650,7 +748,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(6, 198);
+            this.label5.Location = new System.Drawing.Point(3, 175);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(33, 13);
             this.label5.TabIndex = 16;
@@ -659,7 +757,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(123, 146);
+            this.label7.Location = new System.Drawing.Point(120, 123);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(14, 13);
             this.label7.TabIndex = 8;
@@ -668,7 +766,7 @@
             // labelSwr
             // 
             this.labelSwr.AutoSize = true;
-            this.labelSwr.Location = new System.Drawing.Point(40, 198);
+            this.labelSwr.Location = new System.Drawing.Point(37, 175);
             this.labelSwr.Name = "labelSwr";
             this.labelSwr.Size = new System.Drawing.Size(47, 13);
             this.labelSwr.TabIndex = 17;
@@ -684,9 +782,9 @@
             this.groupBox1.Controls.Add(this.comboBoxTunerPorts);
             this.groupBox1.Controls.Add(this.buttonClearEEPROM);
             this.groupBox1.Controls.Add(this.buttonDump);
-            this.groupBox1.Location = new System.Drawing.Point(3, 116);
+            this.groupBox1.Location = new System.Drawing.Point(3, 90);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(226, 140);
+            this.groupBox1.Size = new System.Drawing.Size(345, 111);
             this.groupBox1.TabIndex = 10;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Tuner on serial";
@@ -694,7 +792,7 @@
             // labelRestoreState
             // 
             this.labelRestoreState.AutoSize = true;
-            this.labelRestoreState.Location = new System.Drawing.Point(1, 124);
+            this.labelRestoreState.Location = new System.Drawing.Point(3, 90);
             this.labelRestoreState.Name = "labelRestoreState";
             this.labelRestoreState.Size = new System.Drawing.Size(72, 13);
             this.labelRestoreState.TabIndex = 7;
@@ -704,7 +802,7 @@
             // 
             this.buttonRestoreTuner.AutoSize = true;
             this.buttonRestoreTuner.Enabled = false;
-            this.buttonRestoreTuner.Location = new System.Drawing.Point(97, 94);
+            this.buttonRestoreTuner.Location = new System.Drawing.Point(232, 55);
             this.buttonRestoreTuner.Name = "buttonRestoreTuner";
             this.buttonRestoreTuner.Size = new System.Drawing.Size(81, 23);
             this.buttonRestoreTuner.TabIndex = 6;
@@ -716,7 +814,7 @@
             // 
             this.buttonBackupTuner.AutoSize = true;
             this.buttonBackupTuner.Enabled = false;
-            this.buttonBackupTuner.Location = new System.Drawing.Point(4, 93);
+            this.buttonBackupTuner.Location = new System.Drawing.Point(121, 53);
             this.buttonBackupTuner.Name = "buttonBackupTuner";
             this.buttonBackupTuner.Size = new System.Drawing.Size(81, 23);
             this.buttonBackupTuner.TabIndex = 5;
@@ -737,7 +835,7 @@
             // 
             this.buttonSegmentToTuner.AutoSize = true;
             this.buttonSegmentToTuner.Enabled = false;
-            this.buttonSegmentToTuner.Location = new System.Drawing.Point(4, 63);
+            this.buttonSegmentToTuner.Location = new System.Drawing.Point(232, 19);
             this.buttonSegmentToTuner.Name = "buttonSegmentToTuner";
             this.buttonSegmentToTuner.Size = new System.Drawing.Size(98, 23);
             this.buttonSegmentToTuner.TabIndex = 3;
@@ -760,7 +858,7 @@
             // 
             this.buttonClearEEPROM.AutoSize = true;
             this.buttonClearEEPROM.Enabled = false;
-            this.buttonClearEEPROM.Location = new System.Drawing.Point(136, 26);
+            this.buttonClearEEPROM.Location = new System.Drawing.Point(145, 19);
             this.buttonClearEEPROM.Name = "buttonClearEEPROM";
             this.buttonClearEEPROM.Size = new System.Drawing.Size(66, 23);
             this.buttonClearEEPROM.TabIndex = 2;
@@ -772,7 +870,7 @@
             // 
             this.buttonDump.AutoSize = true;
             this.buttonDump.Enabled = false;
-            this.buttonDump.Location = new System.Drawing.Point(121, 63);
+            this.buttonDump.Location = new System.Drawing.Point(6, 53);
             this.buttonDump.Name = "buttonDump";
             this.buttonDump.Size = new System.Drawing.Size(81, 23);
             this.buttonDump.TabIndex = 4;
@@ -783,7 +881,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(8, 92);
+            this.label3.Location = new System.Drawing.Point(180, 66);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(104, 13);
             this.label3.TabIndex = 8;
@@ -796,7 +894,7 @@
             0,
             0,
             0});
-            this.numericUpDownDecimate.Location = new System.Drawing.Point(117, 90);
+            this.numericUpDownDecimate.Location = new System.Drawing.Point(289, 64);
             this.numericUpDownDecimate.Maximum = new decimal(new int[] {
             167,
             0,
@@ -819,7 +917,7 @@
             // splitContainerMain
             // 
             this.splitContainerMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainerMain.Location = new System.Drawing.Point(413, 0);
+            this.splitContainerMain.Location = new System.Drawing.Point(355, 0);
             this.splitContainerMain.Name = "splitContainerMain";
             // 
             // splitContainerMain.Panel1
@@ -830,8 +928,8 @@
             // splitContainerMain.Panel2
             // 
             this.splitContainerMain.Panel2.Controls.Add(this.chart);
-            this.splitContainerMain.Size = new System.Drawing.Size(546, 563);
-            this.splitContainerMain.SplitterDistance = 310;
+            this.splitContainerMain.Size = new System.Drawing.Size(604, 508);
+            this.splitContainerMain.SplitterDistance = 342;
             this.splitContainerMain.TabIndex = 2;
             // 
             // splitContainerLogs
@@ -848,8 +946,8 @@
             // splitContainerLogs.Panel2
             // 
             this.splitContainerLogs.Panel2.Controls.Add(this.textBoxGatewayPort);
-            this.splitContainerLogs.Size = new System.Drawing.Size(310, 563);
-            this.splitContainerLogs.SplitterDistance = 295;
+            this.splitContainerLogs.Size = new System.Drawing.Size(342, 508);
+            this.splitContainerLogs.SplitterDistance = 266;
             this.splitContainerLogs.TabIndex = 0;
             // 
             // textBoxLocalPort
@@ -861,7 +959,7 @@
             this.textBoxLocalPort.Name = "textBoxLocalPort";
             this.textBoxLocalPort.ReadOnly = true;
             this.textBoxLocalPort.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBoxLocalPort.Size = new System.Drawing.Size(310, 295);
+            this.textBoxLocalPort.Size = new System.Drawing.Size(342, 266);
             this.textBoxLocalPort.TabIndex = 0;
             // 
             // textBoxGatewayPort
@@ -873,117 +971,20 @@
             this.textBoxGatewayPort.Name = "textBoxGatewayPort";
             this.textBoxGatewayPort.ReadOnly = true;
             this.textBoxGatewayPort.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBoxGatewayPort.Size = new System.Drawing.Size(310, 264);
+            this.textBoxGatewayPort.Size = new System.Drawing.Size(342, 238);
             this.textBoxGatewayPort.TabIndex = 0;
-            // 
-            // groupBox4
-            // 
-            this.groupBox4.Controls.Add(this.numericUpDownMinSearch);
-            this.groupBox4.Controls.Add(this.numericUpDownMaxSwitch);
-            this.groupBox4.Controls.Add(this.label18);
-            this.groupBox4.Controls.Add(this.label17);
-            this.groupBox4.Controls.Add(this.label16);
-            this.groupBox4.Location = new System.Drawing.Point(245, 19);
-            this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(72, 167);
-            this.groupBox4.TabIndex = 24;
-            this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "Pwr CAL";
-            // 
-            // label16
-            // 
-            this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(7, 20);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(54, 13);
-            this.label16.TabIndex = 0;
-            this.label16.Text = "Max tune:";
-            // 
-            // label17
-            // 
-            this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(7, 71);
-            this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(62, 13);
-            this.label17.TabIndex = 1;
-            this.label17.Text = "Min search:";
-            // 
-            // label18
-            // 
-            this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(6, 123);
-            this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(54, 13);
-            this.label18.TabIndex = 2;
-            this.label18.Text = "ADC units";
-            // 
-            // numericUpDownMaxSwitch
-            // 
-            this.numericUpDownMaxSwitch.Location = new System.Drawing.Point(9, 39);
-            this.numericUpDownMaxSwitch.Maximum = new decimal(new int[] {
-            1023,
-            0,
-            0,
-            0});
-            this.numericUpDownMaxSwitch.Name = "numericUpDownMaxSwitch";
-            this.numericUpDownMaxSwitch.Size = new System.Drawing.Size(39, 20);
-            this.numericUpDownMaxSwitch.TabIndex = 3;
-            this.numericUpDownMaxSwitch.ValueChanged += new System.EventHandler(this.numericUpDownMaxSwitch_ValueChanged);
-            // 
-            // numericUpDownMinSearch
-            // 
-            this.numericUpDownMinSearch.Location = new System.Drawing.Point(10, 87);
-            this.numericUpDownMinSearch.Maximum = new decimal(new int[] {
-            1023,
-            0,
-            0,
-            0});
-            this.numericUpDownMinSearch.Name = "numericUpDownMinSearch";
-            this.numericUpDownMinSearch.Size = new System.Drawing.Size(38, 20);
-            this.numericUpDownMinSearch.TabIndex = 4;
-            this.numericUpDownMinSearch.ValueChanged += new System.EventHandler(this.numericUpDownMinSearch_ValueChanged);
-            // 
-            // label19
-            // 
-            this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point(10, 112);
-            this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(25, 13);
-            this.label19.TabIndex = 25;
-            this.label19.Text = "Cal:";
-            // 
-            // numericUpDownCali
-            // 
-            this.numericUpDownCali.Location = new System.Drawing.Point(47, 110);
-            this.numericUpDownCali.Maximum = new decimal(new int[] {
-            8192,
-            0,
-            0,
-            0});
-            this.numericUpDownCali.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numericUpDownCali.Name = "numericUpDownCali";
-            this.numericUpDownCali.Size = new System.Drawing.Size(55, 20);
-            this.numericUpDownCali.TabIndex = 26;
-            this.numericUpDownCali.Value = new decimal(new int[] {
-            2443,
-            0,
-            0,
-            0});
             // 
             // DesktopForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(959, 563);
+            this.ClientSize = new System.Drawing.Size(959, 508);
             this.Controls.Add(this.splitContainerMain);
             this.Controls.Add(this.panel1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "DesktopForm";
             this.Text = "MFJ998 Desktop";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.DesktopForm_FormClosed);
             this.Load += new System.EventHandler(this.DesktopForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.chart)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSmoother)).EndInit();
@@ -993,6 +994,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFmin)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownCali)).EndInit();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMinSearch)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMaxSwitch)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownStop)).EndInit();
@@ -1014,11 +1020,6 @@
             this.splitContainerLogs.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerLogs)).EndInit();
             this.splitContainerLogs.ResumeLayout(false);
-            this.groupBox4.ResumeLayout(false);
-            this.groupBox4.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMaxSwitch)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMinSearch)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownCali)).EndInit();
             this.ResumeLayout(false);
 
         }

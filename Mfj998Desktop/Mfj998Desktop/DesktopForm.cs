@@ -207,6 +207,21 @@ namespace Mfj998Desktop
             labelRestoreState.Text = "";
             labelCpos.Text = "";
             comboBoxZ0.SelectedIndex = 0;
+            int idxTFound = -1;
+            int idxGFound = -1;
+            foreach (string s in System.IO.Ports.SerialPort.GetPortNames())
+            {
+                var idx = comboBoxTunerPorts.Items.Add(s);
+                comboBoxGatewayPorts.Items.Add(s);
+                if (String.Equals(s, Properties.Settings.Default.TunerPort))
+                    idxTFound = idx;
+                else if (String.Equals(s, Properties.Settings.Default.GatewayPort))
+                    idxGFound = idx;
+            }
+            if (idxTFound >= 0)
+                comboBoxTunerPorts.SelectedIndex = idxTFound;
+            if (idxGFound >= 0)
+                comboBoxGatewayPorts.SelectedIndex = idxGFound;
         }
         private System.IO.Ports.SerialPort m_mfj998Port;
         private void port_DataReceived(object sender,
@@ -557,7 +572,10 @@ namespace Mfj998Desktop
                 m_mfj998Port.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(port_DataReceived);
                 m_mfj998Port.Open();
                 if (m_mfj998Port.IsOpen)
+                {
                     m_mfj998Port.WriteLine("SET S=0");
+                    Properties.Settings.Default.TunerPort = comName;
+                }
             }
             finally
             {
@@ -569,7 +587,9 @@ namespace Mfj998Desktop
             comboBoxTunerPorts.Items.Clear();
             comboBoxTunerPorts.Items.Add("None");
             foreach (string s in System.IO.Ports.SerialPort.GetPortNames())
+            {
                 comboBoxTunerPorts.Items.Add(s);
+            }
         }
         private void buttonSegmentToTuner_Click(object sender, EventArgs e)
         {
@@ -1025,7 +1045,8 @@ namespace Mfj998Desktop
             m_gatewayPort.DtrEnable = false;
             m_gatewayPort.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(gateway_DataReceived);
             m_gatewayPort.Open();
-
+            if (m_gatewayPort.IsOpen)
+                Properties.Settings.Default.GatewayPort = comName;
         }
         private void numericUpDownNodeId_ValueChanged(object sender, EventArgs e)
         {
@@ -1134,5 +1155,10 @@ namespace Mfj998Desktop
 
         private bool pauseUpdate = false;
 
+        private void DesktopForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Properties.Settings.Default.Save();
+
+        }
     }
 }
