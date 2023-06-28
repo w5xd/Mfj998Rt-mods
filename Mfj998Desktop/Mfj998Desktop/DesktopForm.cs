@@ -56,22 +56,35 @@ namespace Mfj998Desktop
         {
             // put four labels edge to edge and at multiples of 100KHz
             double range = 0.001 * (double)(numericUpDownFmax.Value - numericUpDownFmin.Value);
-            double span = range / 5;
+            int divisions = 6;
+            double span = range / divisions;
             double fLabelApproX = (.001 * (double)numericUpDownFmin.Value) + span / 2;
             chart.ChartAreas[0].AxisX.CustomLabels.Clear();
             chart.ChartAreas[1].AxisX.CustomLabels.Clear();
             chart.ChartAreas[2].AxisX.CustomLabels.Clear();
             int prevKhz = 0;
-            for (int i = 0; i < 4; i++)
+            int round = range > 10 ? 10 : 1;
+            if (round > 1)
             {
-                int nearest100Khz = (int)((fLabelApproX * 10) + 0.5);
-                if (nearest100Khz != prevKhz)
+                span = Math.Floor(span);
+                if (span < 1)
+                    span = 1;
+            }
+            double maxX = .001 * (double)numericUpDownFmax.Value;
+            for (; ; )
+            {
+                int nearest10KHz = (int)((fLabelApproX * 10) + 0.5);
+                nearest10KHz /= round;
+                nearest10KHz *= round;
+                if (nearest10KHz != prevKhz)
                 {
-                    prevKhz = nearest100Khz;
-                    double pos = nearest100Khz;
+                    prevKhz = nearest10KHz;
+                    double pos = nearest10KHz;
                     pos /= 10.0;
+                    if (pos > maxX)
+                        break;
                     var cl = new System.Windows.Forms.DataVisualization.Charting.CustomLabel(pos - span/2, pos + span/2,
-                        String.Format("{0}Khz", nearest100Khz * 100),
+                        String.Format("{0} MHz", nearest10KHz * .1),
                         0, System.Windows.Forms.DataVisualization.Charting.LabelMarkStyle.Box);
                     chart.ChartAreas[0].AxisX.CustomLabels.Add(cl);
                     chart.ChartAreas[1].AxisX.CustomLabels.Add(cl);
@@ -176,8 +189,20 @@ namespace Mfj998Desktop
                 s.Points.Clear();
             foreach (Measurement a in smoothed.Measurements)
             {
+                // calc SWR
+                System.Numerics.Complex zl = new System.Numerics.Complex(Z0, 0);
+                System.Numerics.Complex z = new System.Numerics.Complex(a.r, a.x);
+                System.Numerics.Complex gamma = (zl - z) / (zl + z);
+
+                double swr = 999;
+                double magGamma = gamma.Magnitude;
+                double divisor = 1 - magGamma;
+                if (divisor != 0.0)
+                    swr = (1 + magGamma) / divisor;
+
                 chart.Series[0].Points.Add(new System.Windows.Forms.DataVisualization.Charting.DataPoint(a.fq, a.r));
                 chart.Series[1].Points.Add(new System.Windows.Forms.DataVisualization.Charting.DataPoint(a.fq, a.x));
+                chart.Series["SWR"].Points.Add(new System.Windows.Forms.DataVisualization.Charting.DataPoint(a.fq, swr));
                 var p = fromRXf(a.r, a.x, a.fq);
                 networkDict.Add(a.fq, p);
                 chart.Series["L"].Points.Add(new System.Windows.Forms.DataVisualization.Charting.DataPoint(a.fq, p.luH));
@@ -187,9 +212,10 @@ namespace Mfj998Desktop
                 else
                     chart.Series["C gen"].Points.Add(cPoint);
             }
+            chart.ChartAreas[0].AxisY2.Minimum = 1;
+            chart.ChartAreas[0].AxisY2.Maximum = 10;
             if (null != m_mfj998Port && m_mfj998Port.IsOpen)
                 buttonSegmentToTuner.Enabled = true;
-
         }
 
         public static int toTunerUnits(double fMhz)
@@ -1160,5 +1186,6 @@ namespace Mfj998Desktop
             Properties.Settings.Default.Save();
 
         }
+
     }
 }
