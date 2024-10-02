@@ -377,7 +377,7 @@
             this.numericUpDownCali.Size = new System.Drawing.Size(55, 20);
             this.numericUpDownCali.TabIndex = 26;
             this.numericUpDownCali.Value = new decimal(new int[] {
-            2443,
+            200,
             0,
             0,
             0});
@@ -436,9 +436,9 @@
             this.label18.AutoSize = true;
             this.label18.Location = new System.Drawing.Point(6, 123);
             this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(54, 13);
+            this.label18.Size = new System.Drawing.Size(49, 13);
             this.label18.TabIndex = 2;
-            this.label18.Text = "ADC units";
+            this.label18.Text = "raw ADC";
             // 
             // label17
             // 
@@ -708,7 +708,7 @@
             // labelFwd
             // 
             this.labelFwd.AutoSize = true;
-            this.labelFwd.Location = new System.Drawing.Point(37, 123);
+            this.labelFwd.Location = new System.Drawing.Point(35, 123);
             this.labelFwd.Name = "labelFwd";
             this.labelFwd.Size = new System.Drawing.Size(49, 13);
             this.labelFwd.TabIndex = 7;
@@ -748,7 +748,7 @@
             // labelRef
             // 
             this.labelRef.AutoSize = true;
-            this.labelRef.Location = new System.Drawing.Point(37, 150);
+            this.labelRef.Location = new System.Drawing.Point(35, 150);
             this.labelRef.Name = "labelRef";
             this.labelRef.Size = new System.Drawing.Size(46, 13);
             this.labelRef.TabIndex = 12;
@@ -784,7 +784,7 @@
             // labelSwr
             // 
             this.labelSwr.AutoSize = true;
-            this.labelSwr.Location = new System.Drawing.Point(37, 175);
+            this.labelSwr.Location = new System.Drawing.Point(35, 175);
             this.labelSwr.Name = "labelSwr";
             this.labelSwr.Size = new System.Drawing.Size(47, 13);
             this.labelSwr.TabIndex = 17;

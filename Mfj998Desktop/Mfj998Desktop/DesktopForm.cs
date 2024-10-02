@@ -357,8 +357,8 @@ namespace Mfj998Desktop
                             double CALI = 8 * (double)numericUpDownCali.Value;
                             double fPower = 100.0 * (fwd * fwd) / (CALI * CALI);
                             double rPower = 100.0 * (refl * refl) / (CALI * CALI);
-                            labelFwd.Text = String.Format("{0:0.0}W ({1:0.0})", fPower, (fwd / 8.0));
-                            labelRef.Text = String.Format("{0:0.0}W ({1:0.0})", rPower, (refl / 8.0));
+                            labelFwd.Text = String.Format("{0:0.0}W ({1:0.0} ADC)", fPower, (fwd / 8.0));
+                            labelRef.Text = String.Format("{0:0.0}W ({1:0.0} ADC)", rPower, (refl / 8.0));
 
                             if (fwd != 0)
                             {
